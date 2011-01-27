@@ -1,5 +1,17 @@
 package mcnest;
 
+import nbt.Tag;
+
+public class Chunk {
+
+	public Chunk(Tag chunkTag) {
+		// TODO Auto-generated constructor stub
+	}
+	
+}
+
+/*
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,8 +43,8 @@ public class Chunk {
 		NBTInputStream nbtin = new NBTInputStream(new FileInputStream(this.filename));
 		
 		// load in the root "Level" tag and convert it to a map
-		CompoundTag level = (CompoundTag)(nbtin.readTag());
-		items = level.getValue();
+		CompoundTag root = (CompoundTag)(nbtin.readTag());
+		items = root.getValue();
 		
 		// grab the map information
 		CompoundTag map = (CompoundTag)(items.get("Map"));
@@ -69,3 +81,5 @@ public class Chunk {
 		nbtout.close();
 	}
 }
+
+*/
