@@ -32,21 +32,8 @@ public class MinecraftWorld {
 		CHUNK_ARRAY_OFFSET_X = playerChunkX - CHUNK_OFFSET_MAX;
 		CHUNK_ARRAY_OFFSET_Z = playerChunkZ - CHUNK_OFFSET_MAX;
 		
-		// find the player's position
-		File levelFile = new File(basePath + worldName + "/level.dat");
-		CompoundTag worldData = (CompoundTag)DTFReader.readDTFFile(levelFile);
-		CompoundTag worldDataData = (CompoundTag)worldData.getTagWithName("Data");
-		CompoundTag worldPlayerData = (CompoundTag)worldDataData.getTagWithName("Player");
-		
-		if (worldPlayerData != null) {
-			ListTag playerPos = (ListTag) worldPlayerData.getTagWithName("Pos");
-			this.playerX = (int)((DoubleTag) playerPos.value.get(0)).value;
-			this.playerY = (int)((DoubleTag) playerPos.value.get(1)).value;
-			this.playerZ = (int)((DoubleTag) playerPos.value.get(2)).value;
-		}
-		else {
-			// TODO: Throw exception
-		}
+		LoadPlayerInformation();
+		LoadWorld();
 	}
 	
 	public Tag LoadChunk(int x, int z) {
@@ -93,5 +80,27 @@ public class MinecraftWorld {
 		File chunkFile = new File(this.basePath + firstFolder + "/" + secondFolder + "/" + filename);
 		
 		return chunkFile;
+	}
+	
+	private void LoadPlayerInformation() {
+		// find the player's position
+		File levelFile = new File(basePath + worldName + "/level.dat");
+		CompoundTag worldData = (CompoundTag)DTFReader.readDTFFile(levelFile);
+		CompoundTag worldDataData = (CompoundTag)worldData.getTagWithName("Data");
+		CompoundTag worldPlayerData = (CompoundTag)worldDataData.getTagWithName("Player");
+		
+		if (worldPlayerData != null) {
+			ListTag playerPos = (ListTag) worldPlayerData.getTagWithName("Pos");
+			this.playerX = (int)((DoubleTag) playerPos.value.get(0)).value;
+			this.playerY = (int)((DoubleTag) playerPos.value.get(1)).value;
+			this.playerZ = (int)((DoubleTag) playerPos.value.get(2)).value;
+		}
+		else {
+			// TODO: Throw exception
+		}
+	}
+	
+	private void LoadWorld() {
+		// TODO: Load the world
 	}
 }
