@@ -1,8 +1,6 @@
 package mcnest;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import nbt.*;
 
@@ -15,6 +13,10 @@ public class MinecraftWorld {
 	
 	private int playerChunkX;
 	private int playerChunkZ;
+	
+	private int playerX;
+	private int playerY;
+	private int playerZ;
 	
 	private String basePath;
 	private String worldName;
@@ -29,6 +31,22 @@ public class MinecraftWorld {
 		
 		CHUNK_ARRAY_OFFSET_X = playerChunkX - CHUNK_OFFSET_MAX;
 		CHUNK_ARRAY_OFFSET_Z = playerChunkZ - CHUNK_OFFSET_MAX;
+		
+		// find the player's position
+		File levelFile = new File(basePath + worldName + "/level.dat");
+		CompoundTag worldData = (CompoundTag)DTFReader.readDTFFile(levelFile);
+		CompoundTag worldDataData = (CompoundTag)worldData.getTagWithName("Data");
+		CompoundTag worldPlayerData = (CompoundTag)worldDataData.getTagWithName("Player");
+		
+		if (worldPlayerData != null) {
+			ListTag playerPos = (ListTag) worldPlayerData.getTagWithName("Pos");
+			this.playerX = (int)((DoubleTag) playerPos.value.get(0)).value;
+			this.playerY = (int)((DoubleTag) playerPos.value.get(1)).value;
+			this.playerZ = (int)((DoubleTag) playerPos.value.get(2)).value;
+		}
+		else {
+			// TODO: Throw exception
+		}
 	}
 	
 	public Tag LoadChunk(int x, int z) {
