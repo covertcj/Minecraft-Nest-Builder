@@ -68,8 +68,6 @@ public class DTFReader {
 	 * after reading, which I guess may not be a good idea, should probably do that the
 	 * Right Way in the future.
 	 * 
-	 * TODO: figure that out.
-	 * 
 	 * @param stream
 	 * @return
 	 * @throws IOException
@@ -78,14 +76,12 @@ public class DTFReader {
 		if(stream.available() > 0) {
 			byte type = stream.readByte();
 			if(type != 0){
-				String name = stream.readUTF();
-				Tag t = readTag(type, name, stream);
-				//System.out.println(t);
-				stream.close();
-				return t;
+				String name = stream.readUTF(); 
+
+				return readTag(type, name, stream);
 			}
 		}
-		stream.close();
+
 		return null;
 	}
 	
@@ -93,12 +89,14 @@ public class DTFReader {
 		try {
 			DataInputStream stream = new DataInputStream(new GZIPInputStream(new FileInputStream(f)));
 			
-			return readTagData(stream);
+			Tag t = readTagData(stream);
+			
+			stream.close();
+			
+			return t;
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

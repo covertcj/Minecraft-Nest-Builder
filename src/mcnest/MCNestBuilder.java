@@ -1,5 +1,7 @@
 package mcnest;
 
+import java.io.FileNotFoundException;
+
 public class MCNestBuilder
 {
 	public static void main(String[] args) {
@@ -7,8 +9,12 @@ public class MCNestBuilder
 	}
 	
 	MCNestBuilder(String[] args) {
-		String basePath = "C:/Users/covertcj/AppData/Roaming/.minecraft/saves/";
-		String worldName = "World1";
-		MinecraftWorld world = new MinecraftWorld(basePath, worldName);
+		MinecraftWorld world = new MinecraftWorld("/home/covertcj/.minecraft/saves/", "World1");
+		
+		try {
+			world.LoadChunk(0, 0);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 }

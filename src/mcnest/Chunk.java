@@ -5,7 +5,7 @@ import nbt.Tag;
 public class Chunk {
 
 	public Chunk(Tag chunkTag) {
-		// TODO Auto-generated constructor stub
+		// TODO: Implement the Chunk class.
 	}
 	
 }

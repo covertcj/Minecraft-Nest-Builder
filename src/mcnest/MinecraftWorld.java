@@ -1,6 +1,7 @@
 package mcnest;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import nbt.*;
 
@@ -27,22 +28,25 @@ public class MinecraftWorld {
 		this.worldName = worldName;
 		this.basePath = basePath;
 		
+		// holds all loaded chunks
 		this.chunks = new Chunk[NUM_CHUNKS][NUM_CHUNKS];
 		
+		// find the offset to help find a mapping between our array and minecraft coordinates
 		CHUNK_ARRAY_OFFSET_X = playerChunkX - CHUNK_OFFSET_MAX;
 		CHUNK_ARRAY_OFFSET_Z = playerChunkZ - CHUNK_OFFSET_MAX;
 		
 		LoadPlayerInformation();
 		LoadWorld();
+		
+		// TODO: find the player's chunk
 	}
 	
-	public Tag LoadChunk(int x, int z) {
+	public Tag LoadChunk(int x, int z) throws FileNotFoundException {
 		File chunkFile = this.GetChunkFile(x, z);
 		
 		// ensure the file exists
 		if (!chunkFile.exists()) {
-			// TODO: Throw exception if it doesn't
-			return null;
+			throw new FileNotFoundException("The file: '" + chunkFile.toString() + "' does not exist.");
 		}
 		
 		// read in the chunk
@@ -51,9 +55,6 @@ public class MinecraftWorld {
 		// place the chunk
 		if (chunkTag != null) {
 			chunks[x - CHUNK_ARRAY_OFFSET_X][z - CHUNK_ARRAY_OFFSET_Z] = new Chunk(chunkTag);
-		}
-		else {
-			// TODO: Throw and exception
 		}
 		
 		return chunkTag;
@@ -77,7 +78,7 @@ public class MinecraftWorld {
 		String filename = "c." + Integer.toString(x, 36) + "." + Integer.toString(z, 36) + ".dat";
 		
 		// open the file
-		File chunkFile = new File(this.basePath + firstFolder + "/" + secondFolder + "/" + filename);
+		File chunkFile = new File(this.basePath + this.worldName + "/" + firstFolder + "/" + secondFolder + "/" + filename);
 		
 		return chunkFile;
 	}
