@@ -8,6 +8,8 @@ import nbt.*;
 public class Chunk {
 
 	private CompoundTag tag;
+	private ByteArrayTag blockTag;
+	
 	private int x, z;
 	private String path;
 	
@@ -18,6 +20,9 @@ public class Chunk {
 		this.z = z;
 		
 		this.path = path;
+		
+		CompoundTag levelTag = (CompoundTag) this.tag.getTagWithName("Level"); 
+		this.blockTag = (ByteArrayTag) levelTag.getTagWithName("Blocks");
 	}
 	
 	public ByteArrayTag getBlockTag() {
@@ -71,10 +76,10 @@ public class Chunk {
 		return chunkFile;
 	}
 
-	public byte getBlock(int blockX, int y, int blockZ) {
-		ByteArrayTag blockTag = (ByteArrayTag) this.tag.getTagWithName("Blocks");
-		
-		return blockTag.value[y + (z * 128 + (x * 128 * 16))];
+	public byte getBlock(int x, int y, int z) {
+		//return blockTag.value[y + (z * 128 + (x * 128 * 16))];
+		byte b = blockTag.value[y + (z * 128 + (x * 128 * 16))];
+		return b;
 	}
 	
 }
