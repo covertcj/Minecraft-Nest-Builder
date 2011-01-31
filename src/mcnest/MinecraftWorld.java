@@ -47,54 +47,36 @@ public class MinecraftWorld {
 		LoadWorld();
 	}
 	
-	public int[][][] GetWorldBlocks() {
+	public byte[][][] GetWorldBlocks() {
+		int size = NUM_CHUNKS * 16;
+		byte[][][] blocks = new byte[size][128][size];
+		
 		// TODO: Convert the chunks to a 3D block array
-		return null;
+		for (int x = 0; x < size; x++) {
+			for (int y = 0; y < 128; y++) {
+				for (int z = 0; z < size; z++) {
+					blocks[x][y][z] = this.GetBlockAt(x, y, z);
+				}
+			}
+		}
+		
+		return blocks;
 	}
 	
-	public void SetWorldBlocks(int[][][] blocks) {
+	private byte GetBlockAt(int x, int y, int z) {
+		int chunkX = -x / 16;
+		int chunkZ = -z / 16;	
+		int blockX = x % 16;
+		int blockZ = x % 16;
+		
+		byte block = chunks[chunkX][chunkZ].getBlock(blockX, y, blockZ);
+		
+		return block;
+	}
+	
+	public void SetWorldBlocks(byte[][][] blocks) {
 		// TODO: Convert the 3D block array to Chunks and save
 	}
-	
-//	private void LoadChunk(int x, int z) throws FileNotFoundException {
-//		File chunkFile = this.GetChunkFile(x, z);
-//		
-//		// ensure the file exists
-//		if (!chunkFile.exists()) {
-//			throw new FileNotFoundException("The chunk has failed to load. This is likely due to having uninitialized chunks.");
-//		}
-//		
-//		// read in the chunk
-//		Tag chunkTag = DTFReader.readDTFFile(chunkFile);
-//		
-//		// place the chunk
-//		if (chunkTag != null) {
-//			chunks[x - CHUNK_ARRAY_OFFSET_X][z - CHUNK_ARRAY_OFFSET_Z] = new Chunk(x, z, (CompoundTag)chunkTag, chunkFile.getAbsolutePath());
-//		}
-//	}
-//	
-//	private File GetChunkFile(int x, int z) {
-//		// convert world coords to chunk coords
-//		int x2 = x % 64;
-//		int z2 = z % 64;
-//		
-//		// ensure x and z are not negative
-//		if (x2 < 0)
-//			x2 = x2 + 64;
-//		
-//		if (z2 < 0)
-//			z2 = z2 + 64;
-//		
-//		// build the folder and file names
-//		String firstFolder = Integer.toString(x2, 36);
-//		String secondFolder = Integer.toString(z2, 36);
-//		String filename = "c." + Integer.toString(x, 36) + "." + Integer.toString(z, 36) + ".dat";
-//		
-//		// open the file
-//		File chunkFile = new File(this.basePath + this.worldName + "/" + firstFolder + "/" + secondFolder + "/" + filename);
-//		
-//		return chunkFile;
-//	}
 	
 	private void LoadPlayerInformation() throws Exception {
 		// find the player's position

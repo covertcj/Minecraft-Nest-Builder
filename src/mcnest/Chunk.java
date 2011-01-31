@@ -70,5 +70,11 @@ public class Chunk {
 		
 		return chunkFile;
 	}
+
+	public byte getBlock(int blockX, int y, int blockZ) {
+		ByteArrayTag blockTag = (ByteArrayTag) this.tag.getTagWithName("Blocks");
+		
+		return blockTag.value[y + (z * 128 + (x * 128 * 16))];
+	}
 	
 }
