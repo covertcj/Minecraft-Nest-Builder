@@ -84,7 +84,11 @@ public class MinecraftWorld {
 					}
 				}
 				
-				chunks[chunkX][chunkZ].Save();
+				try {
+					chunks[chunkX][chunkZ].Save();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

@@ -9,5 +9,6 @@ public class MCNestBuilder
 	MCNestBuilder(String[] args) {
 		MinecraftWorld world = new MinecraftWorld("C:/Users/covertcj/AppData/Roaming/.minecraft/saves/", "World1");
 		byte [][][] blocks = world.GetWorldBlocks();
+		world.SetWorldBlocks(blocks);
 	}
 }

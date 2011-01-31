@@ -3,6 +3,7 @@ package mcnest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 //import nbt.*;
@@ -11,6 +12,7 @@ import org.jnbt.*;
 public class Chunk {
 
 	private CompoundTag tag;
+	private CompoundTag levelTag;
 	private ByteArrayTag blockTag;
 	
 	private byte[] blocks;
@@ -29,7 +31,7 @@ public class Chunk {
 //		CompoundTag levelTag = (CompoundTag) this.tag.getTagWithName("Level"); 
 //		this.blockTag = (ByteArrayTag) levelTag.getTagWithName("Blocks");
 //		this.blocks = this.blockTag.value;
-		CompoundTag levelTag = (CompoundTag) this.tag.getValue().get("Level");
+		this.levelTag = (CompoundTag) this.tag.getValue().get("Level");
 		this.blockTag = (ByteArrayTag) levelTag.getValue().get("Blocks");
 		this.blocks = this.blockTag.getValue();
 	}
@@ -43,8 +45,17 @@ public class Chunk {
 		return "[" + x + ", " + z + "]";
 	}
 	
-	public void Save() {
+	public void Save() throws IOException {
 		// TODO: Implement Chunk.Save()
+		File outFile = new File(path);
+		FileOutputStream fout = new FileOutputStream(outFile);
+		NBTOutputStream nout = new NBTOutputStream(fout);
+		
+		this.levelTag.getValue().put("Blocks", new ByteArrayTag("Blocks", this.blocks));
+		this.tag.getValue().put("Level", this.levelTag);
+		
+		nout.close();
+		fout.close();
 	}
 	
 	public static Chunk Load(int x, int z, String basePath, String worldName) throws IOException {
