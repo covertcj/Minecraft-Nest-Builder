@@ -1,9 +1,14 @@
 package mcnest;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
-import nbt.*;
+//import nbt.*;
+import org.jnbt.*;
 
 public class MinecraftWorld {
 	
@@ -36,6 +41,7 @@ public class MinecraftWorld {
 			LoadPlayerInformation();
 		}
 		catch (Exception e) {
+			e.printStackTrace();
 			System.exit(1);
 		}
 		
@@ -86,23 +92,41 @@ public class MinecraftWorld {
 	private void LoadPlayerInformation() throws Exception {
 		// find the player's position
 		File levelFile = new File(basePath + worldName + "/level.dat");
-		CompoundTag worldData = (CompoundTag)DTFReader.readDTFFile(levelFile);
-		CompoundTag worldDataData = (CompoundTag)worldData.getTagWithName("Data");
-		CompoundTag worldPlayerData = (CompoundTag)worldDataData.getTagWithName("Player");
+		FileInputStream fin = new FileInputStream(levelFile);
+		NBTInputStream nbtin = new NBTInputStream(fin);
 		
-		if (worldPlayerData != null) {
-			ListTag playerPos = (ListTag) worldPlayerData.getTagWithName("Pos");
-			this.playerX = (int)((DoubleTag) playerPos.value.get(0)).value;
-			this.playerY = (int)((DoubleTag) playerPos.value.get(1)).value;
-			this.playerZ = (int)((DoubleTag) playerPos.value.get(2)).value;
-			
-			// TODO: Why is this negative in the other person's code?
-			this.playerChunkX = -this.playerX / 16;
-			this.playerChunkZ = -this.playerZ / 16;
-		}
-		else {
-			throw new Exception("The player tag does not exist.");
-		}
+//		CompoundTag worldData = (CompoundTag)DTFReader.readDTFFile(levelFile);
+//		CompoundTag worldDataData = (CompoundTag)worldData.getTagWithName("Data");
+//		CompoundTag worldPlayerData = (CompoundTag)worldDataData.getTagWithName("Player");
+//		
+//		if (worldPlayerData != null) {
+//			ListTag playerPos = (ListTag) worldPlayerData.getTagWithName("Pos");
+//			this.playerX = (int)((DoubleTag) playerPos.value.get(0)).value;
+//			this.playerY = (int)((DoubleTag) playerPos.value.get(1)).value;
+//			this.playerZ = (int)((DoubleTag) playerPos.value.get(2)).value;
+//			
+//			// TODO: Why is this negative in the other person's code?
+//			this.playerChunkX = -this.playerX / 16;
+//			this.playerChunkZ = -this.playerZ / 16;
+//		}
+//		else {
+//			throw new Exception("The player tag does not exist.");
+//		}
+		
+		// read in the compound tag
+		CompoundTag levelData = (CompoundTag) nbtin.readTag();
+		CompoundTag levelDataData = (CompoundTag) levelData.getValue().get("Data");
+		CompoundTag levelPlayerData = (CompoundTag) levelDataData.getValue().get("Player");
+		
+		ListTag playerPos = (ListTag) levelPlayerData.getValue().get("Pos");
+		this.playerX = ((DoubleTag) playerPos.getValue().get(0)).getValue().intValue();
+		this.playerY = ((DoubleTag) playerPos.getValue().get(1)).getValue().intValue();
+		this.playerZ = ((DoubleTag) playerPos.getValue().get(2)).getValue().intValue();
+		this.playerChunkX = -this.playerX / 16;
+		this.playerChunkZ = -this.playerZ / 16;
+				
+		nbtin.close();
+		fin.close();
 	}
 	
 	private void LoadWorld() {
@@ -118,7 +142,7 @@ public class MinecraftWorld {
 				try {
 					chunks[x - CHUNK_ARRAY_OFFSET_X][z - CHUNK_ARRAY_OFFSET_Z] = Chunk.Load(x, z, this.basePath, this.worldName);
 				}
-				catch (FileNotFoundException e) {
+				catch (IOException e) {
 					e.printStackTrace();
 				}
 			}

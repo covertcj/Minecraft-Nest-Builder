@@ -1,9 +1,12 @@
 package mcnest;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
-import nbt.*;
+//import nbt.*;
+import org.jnbt.*;
 
 public class Chunk {
 
@@ -23,14 +26,17 @@ public class Chunk {
 		
 		this.path = path;
 		
-		CompoundTag levelTag = (CompoundTag) this.tag.getTagWithName("Level"); 
-		this.blockTag = (ByteArrayTag) levelTag.getTagWithName("Blocks");
-		this.blocks = this.blockTag.value;
+//		CompoundTag levelTag = (CompoundTag) this.tag.getTagWithName("Level"); 
+//		this.blockTag = (ByteArrayTag) levelTag.getTagWithName("Blocks");
+//		this.blocks = this.blockTag.value;
+		CompoundTag levelTag = (CompoundTag) this.tag.getValue().get("Level");
+		this.blockTag = (ByteArrayTag) levelTag.getValue().get("Blocks");
+		this.blocks = this.blockTag.getValue();
 	}
 	
-	public ByteArrayTag getBlockTag() {
-		return (ByteArrayTag) this.tag.getTagWithName("Blocks");
-	}
+//	public ByteArrayTag getBlockTag() {
+//		return (ByteArrayTag) this.tag.getTagWithName("Blocks");
+//	}
 	
 	@Override
 	public String toString() {
@@ -41,7 +47,7 @@ public class Chunk {
 		// TODO: Implement Chunk.Save()
 	}
 	
-	public static Chunk Load(int x, int z, String basePath, String worldName) throws FileNotFoundException {
+	public static Chunk Load(int x, int z, String basePath, String worldName) throws IOException {
 		File chunkFile = GetChunkFile(x, z, basePath, worldName);
 		
 		// ensure the file exists
@@ -50,9 +56,14 @@ public class Chunk {
 		}
 		
 		// read in the chunk
-		Tag chunkTag = DTFReader.readDTFFile(chunkFile);
+//		Tag chunkTag = DTFReader.readDTFFile(chunkFile);
+		FileInputStream fin = new FileInputStream(chunkFile);
+		NBTInputStream nbtin = new NBTInputStream(fin);
+		Tag chunkTag = nbtin.readTag();
 		
-		// place the chunk
+		nbtin.close();
+		fin.close();
+		
 		return new Chunk(x, z, (CompoundTag)chunkTag, chunkFile.getAbsolutePath());
 	}
 	
