@@ -1,5 +1,6 @@
 package backend;
 
-public class Termite {
-
+public interface Termite {
+	void move();
+	void layPheromone();
 }
