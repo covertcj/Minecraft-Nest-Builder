@@ -1,0 +1,28 @@
+spawn termites
+main loop:
+   move termites
+   lay blocks
+   update pheromones
+
+update pheromones:
+   diffuse pheromone
+   decay pheronome
+   lay pheromone
+
+move termites:
+   move path following termites m steps
+   move block laying pheromones m steps
+   
+lay blocks:
+   for each termite:
+      if pheromone at location .5< and <.8
+         lay block with probability p
+         set building pheromone at that block to k
+
+diffuse pheromone:
+   increase or decrease pheromones in each block according the gradient between adjacent block
+
+lay pheronome:
+   lay trail pheromone
+   lay queen pheromone
+   
