@@ -10,6 +10,8 @@ public class Chunk {
 	private CompoundTag tag;
 	private ByteArrayTag blockTag;
 	
+	private byte[] blocks;
+	
 	private int x, z;
 	private String path;
 	
@@ -23,6 +25,7 @@ public class Chunk {
 		
 		CompoundTag levelTag = (CompoundTag) this.tag.getTagWithName("Level"); 
 		this.blockTag = (ByteArrayTag) levelTag.getTagWithName("Blocks");
+		this.blocks = this.blockTag.value;
 	}
 	
 	public ByteArrayTag getBlockTag() {
@@ -77,9 +80,11 @@ public class Chunk {
 	}
 
 	public byte getBlock(int x, int y, int z) {
-		//return blockTag.value[y + (z * 128 + (x * 128 * 16))];
-		byte b = blockTag.value[y + (z * 128 + (x * 128 * 16))];
-		return b;
+		return this.blocks[y + (z * 128 + (x * 128 * 16))];
+	}
+	
+	public void setBlock(int x, int y, int z, byte block) {
+		this.blocks[y + (z * 128 + (x * 128 * 16))] = block;
 	}
 	
 }

@@ -51,13 +51,12 @@ public class MinecraftWorld {
 		int size = 16 * NUM_CHUNKS;
 		byte[][][] blocks = new byte[size][128][size];
 		
-		// TODO: Convert the chunks to a 3D block array
 		for (int chunkX = 0; chunkX < NUM_CHUNKS; chunkX++) {
 			for (int chunkZ = 0; chunkZ < NUM_CHUNKS; chunkZ++) {
 				for (int x = 0; x < 16; x++) {
 					for (int y = 0; y < 128; y++) {
 						for (int z = 0; z < 16; z++) {
-							blocks[chunkX*16 + x][y][chunkZ*16 + z] = chunks[chunkX][chunkZ].getBlock(x, y, z);;
+							blocks[chunkX*16 + x][y][chunkZ*16 + z] = chunks[chunkX][chunkZ].getBlock(x, y, z);
 						}
 					}
 				}
@@ -69,6 +68,19 @@ public class MinecraftWorld {
 
 	public void SetWorldBlocks(byte[][][] blocks) {
 		// TODO: Convert the 3D block array to Chunks and save
+		for (int chunkX = 0; chunkX < NUM_CHUNKS; chunkX++) {
+			for (int chunkZ = 0; chunkZ < NUM_CHUNKS; chunkZ++) {
+				for (int x = 0; x < 16; x++) {
+					for (int y = 0; y < 128; y++) {
+						for (int z = 0; z < 16; z++) {
+							 chunks[chunkX][chunkZ].setBlock(x, y, z, blocks[chunkX*16 + x][y][chunkZ*16 + z]);
+						}
+					}
+				}
+				
+				chunks[chunkX][chunkZ].Save();
+			}
+		}
 	}
 	
 	private void LoadPlayerInformation() throws Exception {
