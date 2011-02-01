@@ -2,20 +2,16 @@ package mcloader;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.GZIPInputStream;
 
-//import nbt.*;
 import org.jnbt.*;
 
 public class MinecraftWorld {
 	
 	private final int NUM_CHUNKS = 7;
 	private final int CHUNK_OFFSET_MAX = (NUM_CHUNKS - 1) / 2;
-	private final int CHUNK_ARRAY_OFFSET_X;
-	private final int CHUNK_ARRAY_OFFSET_Z;
+	private int CHUNK_ARRAY_OFFSET_X;
+	private int CHUNK_ARRAY_OFFSET_Z;
 	
 	private int playerChunkX;
 	private int playerChunkZ;
@@ -35,25 +31,25 @@ public class MinecraftWorld {
 		
 		// holds all loaded chunks
 		this.chunks = new Chunk[NUM_CHUNKS][NUM_CHUNKS];
-		
+	}
+
+        public void loadData() throws IOException {
 		// load the player information from the level.dat file
-		try {
-			LoadPlayerInformation();
+		if (!loadPlayerInformation()) {
+                    throw new IOException("The world does not have a level.dat file. Does it really exist?");
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
+
 		// find the offset to help find a mapping between our array and minecraft coordinates
 		CHUNK_ARRAY_OFFSET_X = playerChunkX - CHUNK_OFFSET_MAX;
 		CHUNK_ARRAY_OFFSET_Z = playerChunkZ - CHUNK_OFFSET_MAX;
-		
+
 		// load in all of the necessary chunks
-		LoadWorld();
-	}
+		if (!loadWorld()) {
+                    throw new IOException("The world has not initialized required chunks.");
+                }
+        }
 	
-	public byte[][][] GetWorldBlocks() {
+	public byte[][][] getWorldBlocks() {
 		int size = 16 * NUM_CHUNKS;
 		byte[][][] blocks = new byte[size][128][size];
 		
@@ -72,7 +68,7 @@ public class MinecraftWorld {
 		return blocks;
 	}
 
-	public void SetWorldBlocks(byte[][][] blocks) {
+	public boolean setWorldBlocks(byte[][][] blocks) {
 		// TODO: Convert the 3D block array to Chunks and save
 		for (int chunkX = 0; chunkX < NUM_CHUNKS; chunkX++) {
 			for (int chunkZ = 0; chunkZ < NUM_CHUNKS; chunkZ++) {
@@ -87,53 +83,44 @@ public class MinecraftWorld {
 				try {
 					chunks[chunkX][chunkZ].Save();
 				} catch (IOException e) {
-					e.printStackTrace();
+					return false;
 				}
 			}
 		}
+
+                return true;
 	}
 	
-	private void LoadPlayerInformation() throws Exception {
+	private boolean loadPlayerInformation() {
 		// find the player's position
 		File levelFile = new File(basePath + worldName + "/level.dat");
-		FileInputStream fin = new FileInputStream(levelFile);
-		NBTInputStream nbtin = new NBTInputStream(fin);
-		
-//		CompoundTag worldData = (CompoundTag)DTFReader.readDTFFile(levelFile);
-//		CompoundTag worldDataData = (CompoundTag)worldData.getTagWithName("Data");
-//		CompoundTag worldPlayerData = (CompoundTag)worldDataData.getTagWithName("Player");
-//		
-//		if (worldPlayerData != null) {
-//			ListTag playerPos = (ListTag) worldPlayerData.getTagWithName("Pos");
-//			this.playerX = (int)((DoubleTag) playerPos.value.get(0)).value;
-//			this.playerY = (int)((DoubleTag) playerPos.value.get(1)).value;
-//			this.playerZ = (int)((DoubleTag) playerPos.value.get(2)).value;
-//			
-//			// TODO: Why is this negative in the other person's code?
-//			this.playerChunkX = -this.playerX / 16;
-//			this.playerChunkZ = -this.playerZ / 16;
-//		}
-//		else {
-//			throw new Exception("The player tag does not exist.");
-//		}
-		
-		// read in the compound tag
-		CompoundTag levelData = (CompoundTag) nbtin.readTag();
-		CompoundTag levelDataData = (CompoundTag) levelData.getValue().get("Data");
-		CompoundTag levelPlayerData = (CompoundTag) levelDataData.getValue().get("Player");
-		
-		ListTag playerPos = (ListTag) levelPlayerData.getValue().get("Pos");
-		this.playerX = ((DoubleTag) playerPos.getValue().get(0)).getValue().intValue();
-		this.playerY = ((DoubleTag) playerPos.getValue().get(1)).getValue().intValue();
-		this.playerZ = ((DoubleTag) playerPos.getValue().get(2)).getValue().intValue();
-		this.playerChunkX = this.playerX / 16;
-		this.playerChunkZ = this.playerZ / 16;
-				
-		nbtin.close();
-		fin.close();
+                try {
+                    FileInputStream fin = new FileInputStream(levelFile);
+                    NBTInputStream nbtin = new NBTInputStream(fin);
+
+                    // read in the compound tag
+                    CompoundTag levelData = (CompoundTag) nbtin.readTag();
+                    CompoundTag levelDataData = (CompoundTag) levelData.getValue().get("Data");
+                    CompoundTag levelPlayerData = (CompoundTag) levelDataData.getValue().get("Player");
+
+                    ListTag playerPos = (ListTag) levelPlayerData.getValue().get("Pos");
+                    this.playerX = ((DoubleTag) playerPos.getValue().get(0)).getValue().intValue();
+                    this.playerY = ((DoubleTag) playerPos.getValue().get(1)).getValue().intValue();
+                    this.playerZ = ((DoubleTag) playerPos.getValue().get(2)).getValue().intValue();
+                    this.playerChunkX = this.playerX / 16;
+                    this.playerChunkZ = this.playerZ / 16;
+
+                    nbtin.close();
+                    fin.close();
+                }
+                catch (IOException e) {
+                    return false;
+                }
+
+                return true;
 	}
 	
-	private void LoadWorld() {
+	private boolean loadWorld() {
 		// loop through the chunk array and load corresponding chunks
 		for (int i = -this.CHUNK_OFFSET_MAX; i <= this.CHUNK_OFFSET_MAX; i++) {
 			for (int j = -this.CHUNK_OFFSET_MAX; j <= this.CHUNK_OFFSET_MAX; j++) {
@@ -147,12 +134,14 @@ public class MinecraftWorld {
 					chunks[x - CHUNK_ARRAY_OFFSET_X][z - CHUNK_ARRAY_OFFSET_Z] = Chunk.Load(x, z, this.basePath, this.worldName);
 				}
 				catch (IOException e) {
-					e.printStackTrace();
+                                        return false;
 				}
 			}
 		}
-	}
 
+                return true;
+	}
+        
 	public int getPlayerY() {
 		return this.playerY;
 	}

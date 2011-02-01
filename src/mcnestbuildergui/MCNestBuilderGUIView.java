@@ -8,9 +8,11 @@ import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
+import org.jdesktop.application.Task;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -96,12 +98,12 @@ public class MCNestBuilderGUIView extends FrameView {
 
         mainPanel = new javax.swing.JPanel();
         jButtonSelectPath = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jRadioButton3 = new javax.swing.JRadioButton();
-        jRadioButton4 = new javax.swing.JRadioButton();
-        jRadioButton5 = new javax.swing.JRadioButton();
+        jTextFieldMinecraftPath = new javax.swing.JTextField();
+        jRadioButtonWorld1 = new javax.swing.JRadioButton();
+        jRadioButtonWorld2 = new javax.swing.JRadioButton();
+        jRadioButtonWorld3 = new javax.swing.JRadioButton();
+        jRadioButtonWorld4 = new javax.swing.JRadioButton();
+        jRadioButtonWorld5 = new javax.swing.JRadioButton();
         jButtonRun = new javax.swing.JButton();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
@@ -123,28 +125,28 @@ public class MCNestBuilderGUIView extends FrameView {
         jButtonSelectPath.setActionCommand(resourceMap.getString("jButtonSelectPath.actionCommand")); // NOI18N
         jButtonSelectPath.setName("jButtonSelectPath"); // NOI18N
 
-        jTextField1.setText(resourceMap.getString("jTextFieldMinecraftPath.text")); // NOI18N
-        jTextField1.setName("jTextFieldMinecraftPath"); // NOI18N
+        jTextFieldMinecraftPath.setText(resourceMap.getString("jTextFieldMinecraftPath.text")); // NOI18N
+        jTextFieldMinecraftPath.setName("jTextFieldMinecraftPath"); // NOI18N
 
-        buttonGroupWorlds.add(jRadioButton1);
-        jRadioButton1.setText(resourceMap.getString("jRadioButtonWorld1.text")); // NOI18N
-        jRadioButton1.setName("jRadioButtonWorld1"); // NOI18N
+        buttonGroupWorlds.add(jRadioButtonWorld1);
+        jRadioButtonWorld1.setText(resourceMap.getString("jRadioButtonWorld1.text")); // NOI18N
+        jRadioButtonWorld1.setName("jRadioButtonWorld1"); // NOI18N
 
-        buttonGroupWorlds.add(jRadioButton2);
-        jRadioButton2.setText(resourceMap.getString("jRadioButtonWorld2.text")); // NOI18N
-        jRadioButton2.setName("jRadioButtonWorld2"); // NOI18N
+        buttonGroupWorlds.add(jRadioButtonWorld2);
+        jRadioButtonWorld2.setText(resourceMap.getString("jRadioButtonWorld2.text")); // NOI18N
+        jRadioButtonWorld2.setName("jRadioButtonWorld2"); // NOI18N
 
-        buttonGroupWorlds.add(jRadioButton3);
-        jRadioButton3.setText(resourceMap.getString("jRadioButtonWorld3.text")); // NOI18N
-        jRadioButton3.setName("jRadioButtonWorld3"); // NOI18N
+        buttonGroupWorlds.add(jRadioButtonWorld3);
+        jRadioButtonWorld3.setText(resourceMap.getString("jRadioButtonWorld3.text")); // NOI18N
+        jRadioButtonWorld3.setName("jRadioButtonWorld3"); // NOI18N
 
-        buttonGroupWorlds.add(jRadioButton4);
-        jRadioButton4.setText(resourceMap.getString("jRadioButtonWorld4.text")); // NOI18N
-        jRadioButton4.setName("jRadioButtonWorld4"); // NOI18N
+        buttonGroupWorlds.add(jRadioButtonWorld4);
+        jRadioButtonWorld4.setText(resourceMap.getString("jRadioButtonWorld4.text")); // NOI18N
+        jRadioButtonWorld4.setName("jRadioButtonWorld4"); // NOI18N
 
-        buttonGroupWorlds.add(jRadioButton5);
-        jRadioButton5.setText(resourceMap.getString("jRadioButtonWorld5.text")); // NOI18N
-        jRadioButton5.setName("jRadioButtonWorld5"); // NOI18N
+        buttonGroupWorlds.add(jRadioButtonWorld5);
+        jRadioButtonWorld5.setText(resourceMap.getString("jRadioButtonWorld5.text")); // NOI18N
+        jRadioButtonWorld5.setName("jRadioButtonWorld5"); // NOI18N
 
         jButtonRun.setAction(actionMap.get("runProgram")); // NOI18N
         jButtonRun.setText(resourceMap.getString("buttonRun.text")); // NOI18N
@@ -157,15 +159,15 @@ public class MCNestBuilderGUIView extends FrameView {
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jRadioButton5)
-                    .addComponent(jRadioButton4)
-                    .addComponent(jRadioButton3)
-                    .addComponent(jRadioButton2)
-                    .addComponent(jRadioButton1)
+                    .addComponent(jRadioButtonWorld5)
+                    .addComponent(jRadioButtonWorld4)
+                    .addComponent(jRadioButtonWorld3)
+                    .addComponent(jRadioButtonWorld2)
+                    .addComponent(jRadioButtonWorld1)
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(jButtonSelectPath)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE))
+                        .addComponent(jTextFieldMinecraftPath, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE))
                     .addComponent(jButtonRun, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
@@ -174,18 +176,18 @@ public class MCNestBuilderGUIView extends FrameView {
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldMinecraftPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonSelectPath, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jRadioButton1)
+                .addComponent(jRadioButtonWorld1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jRadioButton2)
+                .addComponent(jRadioButtonWorld2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jRadioButton3)
+                .addComponent(jRadioButtonWorld3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jRadioButton4)
+                .addComponent(jRadioButtonWorld4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jRadioButton5)
+                .addComponent(jRadioButtonWorld5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addComponent(jButtonRun)
                 .addContainerGap())
@@ -252,47 +254,83 @@ public class MCNestBuilderGUIView extends FrameView {
     @Action
     public void selectMinecraftPath() {
         if (minecraftPathChooser.showOpenDialog(mainPanel) == minecraftPathChooser.APPROVE_OPTION)
-            jTextField1.setText(minecraftPathChooser.getSelectedFile().getPath());
+            jTextFieldMinecraftPath.setText(minecraftPathChooser.getSelectedFile().getPath());
     }
 
     @Action
-    public void runProgram() {
-        // find the name of the desired world
-        String worldName = "";
-        if (jRadioButton1.isSelected()) {
+    public Task runProgram() {
+        return new RunProgramTask(getApplication());
+    }
+
+    private class RunProgramTask extends org.jdesktop.application.Task<Object, Void> {
+        RunProgramTask(org.jdesktop.application.Application app) {
+            // Runs on the EDT.  Copy GUI state that
+            // doInBackground() depends on from parameters
+            // to RunProgramTask fields, here.
+            super(app);
+
+            // start the progress bar
+            progressBar.setVisible(true);
+            progressBar.setValue(0);
+
+            // find the name of the desired world
+            String worldName = "";
+            if (jRadioButtonWorld1.isSelected()) {
             worldName = "World1";
-        } else if (jRadioButton2.isSelected()) {
+            } else if (jRadioButtonWorld2.isSelected()) {
             worldName = "World2";
-        } else if (jRadioButton3.isSelected()) {
+            } else if (jRadioButtonWorld3.isSelected()) {
             worldName = "World3";
-        } else if (jRadioButton4.isSelected()) {
+            } else if (jRadioButtonWorld4.isSelected()) {
             worldName = "World4";
-        } else if (jRadioButton5.isSelected()) {
+            } else if (jRadioButtonWorld5.isSelected()) {
             worldName = "World5";
+            }
+
+            // find the .minecraft save game path
+            String minecraftPath = jTextFieldMinecraftPath.getText();
+
+            // load the world at the combined path
+            MinecraftWorld minecraftWorld = new MinecraftWorld(minecraftPath + "/saves/", worldName);
+
+            try {
+                minecraftWorld.loadData();
+                progressBar.setValue(25);
+            }
+            catch (IOException e) {
+                JOptionPane.showMessageDialog(mainPanel, new JLabel(e.getMessage()), "Complete", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            // TODO: Insert code to do world alterations...
+            byte[][][] blocks = minecraftWorld.getWorldBlocks();
+
+            // tell the user that we are done
+            progressBar.setValue(100);
+            JOptionPane.showMessageDialog(mainPanel, new JLabel("The Minecraft save in '" + worldName + "' has been modified."), "Complete", JOptionPane.INFORMATION_MESSAGE);
+            progressBar.setVisible(false);
         }
-
-        // find the .minecraft save game path
-        String minecraftPath = jTextField1.getText();
-
-        // load the world at the combined path
-        MinecraftWorld minecraftWorld = new MinecraftWorld(minecraftPath + "/saves/", worldName);
-
-        // TODO: Insert code to do world alterations...
-
-        // tell the user that we are done
-        JOptionPane.showMessageDialog(mainPanel, new JLabel("The Minecraft save in '" + worldName + "' has been modified."), "Complete", JOptionPane.INFORMATION_MESSAGE);
+        @Override protected Object doInBackground() {
+            // Your Task's code here.  This method runs
+            // on a background thread, so don't reference
+            // the Swing GUI from here.
+            return null;  // return your result
+        }
+        @Override protected void succeeded(Object result) {
+            // Runs on the EDT.  Update the GUI based on
+            // the result computed by doInBackground().
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupWorlds;
     private javax.swing.JButton jButtonRun;
     private javax.swing.JButton jButtonSelectPath;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JRadioButton jRadioButton3;
-    private javax.swing.JRadioButton jRadioButton4;
-    private javax.swing.JRadioButton jRadioButton5;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JRadioButton jRadioButtonWorld1;
+    private javax.swing.JRadioButton jRadioButtonWorld2;
+    private javax.swing.JRadioButton jRadioButtonWorld3;
+    private javax.swing.JRadioButton jRadioButtonWorld4;
+    private javax.swing.JRadioButton jRadioButtonWorld5;
+    private javax.swing.JTextField jTextFieldMinecraftPath;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JFileChooser minecraftPathChooser;
