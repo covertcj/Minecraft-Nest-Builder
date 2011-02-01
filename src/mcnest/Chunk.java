@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 //import nbt.*;
 import org.jnbt.*;
@@ -51,8 +52,14 @@ public class Chunk {
 		FileOutputStream fout = new FileOutputStream(outFile);
 		NBTOutputStream nout = new NBTOutputStream(fout);
 		
-		this.levelTag.getValue().put("Blocks", new ByteArrayTag("Blocks", this.blocks));
-		this.tag.getValue().put("Level", this.levelTag);
+		HashMap<String, Tag> levelTagMap = new HashMap<String, Tag>(this.levelTag.getValue());
+		levelTagMap.put("Blocks", new ByteArrayTag("Blocks", this.blocks));
+		
+		HashMap<String, Tag> tagMap = new HashMap<String, Tag>(this.tag.getValue());
+		tagMap.put("Level", this.levelTag);
+		
+		Tag t = new CompoundTag("", tagMap);
+		nout.writeTag(t);
 		
 		nout.close();
 		fout.close();

@@ -126,8 +126,8 @@ public class MinecraftWorld {
 		this.playerX = ((DoubleTag) playerPos.getValue().get(0)).getValue().intValue();
 		this.playerY = ((DoubleTag) playerPos.getValue().get(1)).getValue().intValue();
 		this.playerZ = ((DoubleTag) playerPos.getValue().get(2)).getValue().intValue();
-		this.playerChunkX = -this.playerX / 16;
-		this.playerChunkZ = -this.playerZ / 16;
+		this.playerChunkX = this.playerX / 16;
+		this.playerChunkZ = this.playerZ / 16;
 				
 		nbtin.close();
 		fin.close();
@@ -151,5 +151,9 @@ public class MinecraftWorld {
 				}
 			}
 		}
+	}
+
+	public int getPlayerY() {
+		return this.playerY;
 	}
 }
