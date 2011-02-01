@@ -1,6 +1,6 @@
 package backend;
 
 public interface Termite {
-	void move();
+	void act(Block[][][] map);
 	void layPheromone();
 }

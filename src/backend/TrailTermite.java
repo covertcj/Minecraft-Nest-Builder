@@ -9,14 +9,17 @@ public class TrailTermite implements Termite {
 
 	@Override
 	public void layPheromone() {
-		// TODO Auto-generated method stub
 
 	}
 
-	@Override
-	public void move() {
-		// TODO Auto-generated method stub
+	public void move(Block[][][] map) {
+		
+	}
 
+	@Override
+	public void act(Block[][][] map) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
