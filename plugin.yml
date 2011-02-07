@@ -1,0 +1,4 @@
+name: NestBuilder
+
+main: com.bukkit.mcnestbuilder.MCNestBuilder
+version: 1.0
