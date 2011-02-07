@@ -1,4 +1,4 @@
 name: NestBuilder
 
-main: com.bukkit.mcnestbuilder.MCNestBuilder
+main: com.bukkit.mcnestbuilder.plugin.NestBuilder
 version: 1.0

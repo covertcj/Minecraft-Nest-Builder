@@ -25,14 +25,15 @@ import org.bukkit.plugin.PluginManager;
  *
  * @author Dinnerbone
  */
-public class MCNestBuilder extends JavaPlugin {
-    private final MCNestBuilderPlayerListener playerListener = new MCNestBuilderPlayerListener(this);
-    private final MCNestBuilderBlockListener blockListener = new MCNestBuilderBlockListener(this);
+public class NestBuilder extends JavaPlugin {
+    private final NBPlayerListener playerListener = new NBPlayerListener(this);
+//    private final BlockListener blockListener = new BlockListener(this);
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
 
-    public static final int DEFAULT_DIMENSION   = 128;
+    public static final int     DEFAULT_DIMENSION   = 128;
+    public static final int     DEFAULT_TIMESTEP    = 200;
 
-    public MCNestBuilder(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
+    public NestBuilder(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
         super(pluginLoader, instance, desc, folder, plugin, cLoader);
         // TODO: Place any custom initialisation code here
 
@@ -53,12 +54,12 @@ public class MCNestBuilder extends JavaPlugin {
 
         // Register our events
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
-        pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Normal, this);
+//        pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
+//        pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.PLAYER_COMMAND, playerListener, Priority.Normal, this);
-        pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Normal, this);
-        pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
-        pm.registerEvent(Event.Type.BLOCK_CANBUILD, blockListener, Priority.Normal, this);
+//        pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Normal, this);
+//        pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
+//        pm.registerEvent(Event.Type.BLOCK_CANBUILD, blockListener, Priority.Normal, this);
 
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
         PluginDescriptionFile pdfFile = this.getDescription();
