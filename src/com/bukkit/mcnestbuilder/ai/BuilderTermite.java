@@ -37,12 +37,13 @@ public class BuilderTermite implements Termite {
     }
 
     public void layPheromone() {
-        throw new UnsupportedOperationException("Not supported yet.");
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void destroy() {
         // TODO: Find a way to destroy the termites
-        ((Player)(npc.getBukkitEntity())).kickPlayer(npc.getName());// .setHealth(0);
+//        ((Player)(npc.getBukkitEntity())).kickPlayer(npc.getName());// .setHealth(0);
+        NpcSpawner.RemoveBasicHumanNpc(npc);
         Mediator.releaseNPC();
     }
 

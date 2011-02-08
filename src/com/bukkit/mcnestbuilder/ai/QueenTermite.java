@@ -35,11 +35,11 @@ public class QueenTermite implements Termite {
     }
 
     public void layPheromone() {
-        throw new UnsupportedOperationException("Not supported yet.");
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void destroy() {
-        npc.getBukkitEntity().setHealth(0);
+        NpcSpawner.RemoveBasicHumanNpc(npc);
         Mediator.releaseNPC();
     }
 

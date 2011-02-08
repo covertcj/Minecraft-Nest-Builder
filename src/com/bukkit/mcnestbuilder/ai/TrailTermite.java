@@ -32,15 +32,16 @@ public class TrailTermite implements Termite {
     }
 
     public void act() {
-        throw new UnsupportedOperationException("Not supported yet.");
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void layPheromone() {
-        throw new UnsupportedOperationException("Not supported yet.");
+//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void destroy() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        NpcSpawner.RemoveBasicHumanNpc(npc);
+        Mediator.releaseNPC();
     }
 
 }
