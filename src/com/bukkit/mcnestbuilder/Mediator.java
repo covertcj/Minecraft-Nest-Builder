@@ -42,17 +42,17 @@ public class Mediator implements Runnable {
 
     public Mediator(Player player, int dimension, int duration) {
 
-        this.caller = player;
-        this.world = this.caller.getWorld();
-        this.worldData = new WorldData(this.world);
-
         this.dimension = dimension;
         this.duration = duration;
         this.timestep = (duration * 1000) / TIME_STEPS;
 
-        int x = player.getLocation().getBlockX();
-        int y = player.getLocation().getBlockY();
-        int z = player.getLocation().getBlockZ();
+        this.caller = player;
+        this.world = this.caller.getWorld();
+        this.worldData = new WorldData(this.world, this.dimension);
+
+        int x = this.caller.getLocation().getBlockX();
+        int y = this.caller.getLocation().getBlockY();
+        int z = this.caller.getLocation().getBlockZ();
 
         this.caller.sendMessage("Initializing Nest Builder at (" + x + ", " + y + ", " + z + ") with a dimension of " + dimension + " over " + duration + " seconds...");
 

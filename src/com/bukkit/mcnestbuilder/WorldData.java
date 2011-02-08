@@ -19,11 +19,15 @@ public class WorldData {
     World world;
 
     HashMap<Location, PheromoneLevel> pheromoneLevels;
+
+    int dimension;
     
-    public WorldData(World world) {
+    public WorldData(World world, int dimension) {
         this.world = world;
 
         this.pheromoneLevels = new HashMap<Location, PheromoneLevel>();
+        
+        this.dimension = dimension;
     }
 
     /**
@@ -39,6 +43,14 @@ public class WorldData {
         return world.getBlockAt(x, y, z).getType();
     }
 
+    /**
+     * Sets the block at a given position to a given material.
+     *
+     * @param x The x position of the block
+     * @param y The y position of the block
+     * @param z The z position of the block
+     * @param mat The material to set the block to
+     */
     public void setBlockType(int x, int y, int z, Material mat) {
         world.getBlockAt(x, y, z).setType(mat);
     }
@@ -77,5 +89,19 @@ public class WorldData {
      */
     public World getWorld() {
         return world;
+    }
+
+    /**
+     * Diffuses the pheromones for each block onto adjacent blocks.
+     */
+    public void DiffusePheromones() {
+        // TODO: Implement WorldData.DiffusePheromone()
+    }
+    
+    /**
+     * Partially evaporates all pheromones in the world.
+     */
+    public void EvaporatePheromones() {
+        // TODO: Implement WorldData.EvaporatePheromones()
     }
 }
