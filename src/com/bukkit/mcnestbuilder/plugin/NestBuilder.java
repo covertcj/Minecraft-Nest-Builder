@@ -31,7 +31,7 @@ public class NestBuilder extends JavaPlugin {
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
 
     public static final int     DEFAULT_DIMENSION   = 128;
-    public static final int     DEFAULT_TIMESTEP    = 200;
+    public static final int     DEFAULT_DURATION    = 10;
 
     public NestBuilder(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
         super(pluginLoader, instance, desc, folder, plugin, cLoader);

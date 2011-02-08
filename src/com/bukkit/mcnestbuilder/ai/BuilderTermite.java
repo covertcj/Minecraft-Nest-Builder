@@ -22,7 +22,7 @@ public class BuilderTermite implements Termite {
 
     double x, y, z;
 
-    public BuilderTermite(int x, int y, int z, WorldData world) throws Exception {
+    public BuilderTermite(int x, int y, int z, WorldData world) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -42,7 +42,7 @@ public class BuilderTermite implements Termite {
 
     public void destroy() {
         // TODO: Find a way to destroy the termites
-        ((Player)(npc.getBukkitEntity())).kickPlayer(null);// .setHealth(0);
+        ((Player)(npc.getBukkitEntity())).kickPlayer(npc.getName());// .setHealth(0);
         Mediator.releaseNPC();
     }
 

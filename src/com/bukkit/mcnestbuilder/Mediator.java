@@ -8,6 +8,7 @@ package com.bukkit.mcnestbuilder;
 import com.bukkit.mcnestbuilder.ai.BuilderTermite;
 import com.bukkit.mcnestbuilder.ai.QueenTermite;
 import com.bukkit.mcnestbuilder.ai.Termite;
+import com.bukkit.mcnestbuilder.ai.TrailTermite;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +24,8 @@ import org.bukkit.entity.Player;
  */
 public class Mediator implements Runnable {
 
+    final int TIME_STEPS = 1000;
+
     Player caller;
     World world;
     WorldData worldData;
@@ -31,30 +34,29 @@ public class Mediator implements Runnable {
 
     int dimension;
     int timestep;
+    int duration;
 
     static final int NPC_MAX = 500;
     static int npcID;
     static int npcCount;
 
-    public Mediator(Player player, int dimension, int timestep) {
+    public Mediator(Player player, int dimension, int duration) {
 
         this.caller = player;
         this.world = this.caller.getWorld();
         this.worldData = new WorldData(this.world);
 
         this.dimension = dimension;
-        this.timestep = timestep;
+        this.duration = duration;
+        this.timestep = (duration * 1000) / TIME_STEPS;
 
         int x = player.getLocation().getBlockX();
         int y = player.getLocation().getBlockY();
         int z = player.getLocation().getBlockZ();
 
-        this.caller.sendMessage("Initializing Nest Builder at (" + x + ", " + y + ", " + z + ") with a dimension of " + dimension + "...");
+        this.caller.sendMessage("Initializing Nest Builder at (" + x + ", " + y + ", " + z + ") with a dimension of " + dimension + " over " + duration + " seconds...");
 
         termites = new ArrayList<Termite>();
-
-        // create the termites
-        InitializeTermtites();
     }
 
     /**
@@ -68,13 +70,19 @@ public class Mediator implements Runnable {
         // TODO: Run the bot
         while (!done) {
 
+            // process termite actions
             for (Termite termite : termites) {
                 termite.act();
             }
 
-//            for (Termite termite : termites) {
-//                termite.layPheromone();
-//            }
+            // update pheromones based on termite positions
+            for (Termite termite : termites) {
+                termite.layPheromone();
+            }
+
+            // TODO: diffuse pheromones
+
+            // TODO: diminish pheromones
             
             try {
               Thread.sleep(this.timestep);
@@ -94,36 +102,61 @@ public class Mediator implements Runnable {
         this.caller.sendMessage("Nest Building process has completed.");
     }
 
-    private boolean InitializeTermtites() {
-        try {
-            int queenX = this.caller.getLocation().getBlockX();
-            int queenY = this.caller.getLocation().getBlockY();
-            int queenZ = this.caller.getLocation().getBlockZ();
+    public boolean InitializeTermtites() {
+        int queenX = this.caller.getLocation().getBlockX();
+        int queenY = this.caller.getLocation().getBlockY();
+        int queenZ = this.caller.getLocation().getBlockZ();
 
-            int xOrigin = queenX - dimension / 2;
-            int zOrigin = queenZ - dimension / 2;
+        int xOrigin = queenX - dimension / 2;
+        int zOrigin = queenZ - dimension / 2;
 
-            termites.add(new QueenTermite(queenX, queenY, queenZ, worldData));
+        ArrayList<Location> queenLocs = new ArrayList<Location>();
+        ArrayList<Location> builderLocs = new ArrayList<Location>();
+        ArrayList<Location> trailLocs = new ArrayList<Location>();
 
-            for (int x = xOrigin; x < dimension + xOrigin; x++) {
-                for (int z = zOrigin; z < dimension + zOrigin; z++) {
-                    for (int y = 0; y < 128; y++) {
+        // find the main queen location
+        queenLocs.add(new Location(queenX, queenY, queenZ));
 
-                        Block current = world.getBlockAt(x, y, z);
+        // find the locations of other termites
+        for (int x = xOrigin; x < dimension + xOrigin; x++) {
+            for (int z = zOrigin; z < dimension + zOrigin; z++) {
+                for (int y = 0; y < 128; y++) {
 
-                        if (current.getType() == Material.SIGN_POST) {
-                            if (((CraftSign) current.getState()).getLine(0).equalsIgnoreCase("builder")) {
+                    Block current = world.getBlockAt(x, y, z);
 
-                                current.setType(Material.AIR);
-                                termites.add(new BuilderTermite(x, y, z, worldData));
-                            }
+                    // if the current block is a sign, we might have found a location for a termite
+                    if (current.getType() == Material.SIGN_POST) {
+                        // check if it is a builder sign
+                        if (((CraftSign) current.getState()).getLine(0).equalsIgnoreCase("builder")) {
+
+                            // add a builder location
+                            builderLocs.add(new Location(x, y, z));
                         }
                     }
                 }
             }
-        } catch (Exception ex) {
+        }
+
+        // check to make sure our server can handle the NPC's
+        int numNPCs = queenLocs.size() + builderLocs.size() + trailLocs.size();
+        if (numNPCs + npcCount > NPC_MAX) {
             return false;
         }
+
+        // add in the queen termites
+        for (Location loc : queenLocs) {
+            termites.add(new QueenTermite(loc.x, loc.y, loc.z, worldData));
+        }
+
+        // add in the builder termites
+        for (Location loc : builderLocs) {
+            termites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData));
+        }
+
+        // add in the trail termites
+        for (Location loc : trailLocs) {
+            termites.add(new TrailTermite(loc.x, loc.y, loc.z, worldData));
+        } 
 
         return true;
     }
@@ -134,14 +167,9 @@ public class Mediator implements Runnable {
         }
     }
 
-    public static String getNextNPCID() throws Exception {
-        if (npcCount >= NPC_MAX) {
-            throw new Exception("Too many NPC's!");
-        }
-
+    public static String getNextNPCID() {
         npcID++;
         npcCount++;
-
 
         return "" + npcID;
     }

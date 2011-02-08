@@ -7,21 +7,22 @@ package com.bukkit.mcnestbuilder.ai;
 
 import com.bukkit.mcnestbuilder.Mediator;
 import com.bukkit.mcnestbuilder.WorldData;
-import org.bukkit.npcspawner.BasicHumanNpc;
 import org.bukkit.npcspawner.NpcSpawner;
+import org.bukkit.World;
+import org.bukkit.npcspawner.BasicHumanNpc;
 
 /**
  *
  * @author covertcj
  */
-public class QueenTermite implements Termite {
-
+public class TrailTermite implements Termite {
+    
     BasicHumanNpc npc;
     WorldData world;
 
     double x, y, z;
 
-    public QueenTermite(int x, int y, int z, WorldData world) {
+    public TrailTermite(int x, int y, int z, WorldData world) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -31,7 +32,7 @@ public class QueenTermite implements Termite {
     }
 
     public void act() {
-        // TODO: Implement QueenTermite.act()
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void layPheromone() {
@@ -39,8 +40,7 @@ public class QueenTermite implements Termite {
     }
 
     public void destroy() {
-        npc.getBukkitEntity().setHealth(0);
-        Mediator.releaseNPC();
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }
