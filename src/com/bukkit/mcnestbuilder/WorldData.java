@@ -34,8 +34,11 @@ public class WorldData {
         int xoff = playerLoc.x - dimension / 2;
         int zoff = playerLoc.z - dimension / 2;
 
+        int yMin = playerLoc.y - Mediator.Y_OFFSET_DOWN;
+        int yMax = playerLoc.y + Mediator.Y_OFFSET_UP;
+
         for (int x = xoff; x < dimension + xoff; x++) {
-            for (int y = 0; y < 128; y++) {
+            for (int y = yMin; y < yMax; y++) {
                 for (int z = zoff; z < dimension + zoff; z++) {
                     this.pheromoneLevels.put(new Location(x, y, z), new PheromoneLevel());
                }

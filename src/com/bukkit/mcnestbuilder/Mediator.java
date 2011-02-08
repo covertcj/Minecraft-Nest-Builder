@@ -40,6 +40,8 @@ public class Mediator implements Runnable {
     static final int NPC_MAX = 500;
     static int npcID;
     static int npcCount;
+    public static final int Y_OFFSET_DOWN = 25;
+    public static final int Y_OFFSET_UP   = 35;
 
     public Mediator(Player player, int dimension, int duration) {
 
@@ -129,10 +131,13 @@ public class Mediator implements Runnable {
         // find the main queen location
         queenLocs.add(new Location(queenX, queenY, queenZ));
 
+        int yMin = queenY - Y_OFFSET_DOWN;
+        int yMax = queenY + Y_OFFSET_UP;
+
         // find the locations of other termites
         for (int x = xOrigin; x < dimension + xOrigin; x++) {
             for (int z = zOrigin; z < dimension + zOrigin; z++) {
-                for (int y = 0; y < 128; y++) {
+                for (int y = yMin; y < yMax; y++) {
 
                     Block current = world.getBlockAt(x, y, z);
 
