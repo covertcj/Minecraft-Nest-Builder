@@ -49,4 +49,8 @@ public class Location {
 
         return true;
     }
+
+    public String toString() {
+        return this.x + " " + this.y + " " + this.z;
+    }
 }

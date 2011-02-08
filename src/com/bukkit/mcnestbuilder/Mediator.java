@@ -25,6 +25,7 @@ import org.bukkit.entity.Player;
 public class Mediator implements Runnable {
 
     final int TIME_STEPS = 1000;
+    final int BUILDERS = 50;
 
     Player caller;
     World world;
@@ -47,12 +48,13 @@ public class Mediator implements Runnable {
         this.timestep = (duration * 1000) / TIME_STEPS;
 
         this.caller = player;
-        this.world = this.caller.getWorld();
-        this.worldData = new WorldData(this.world, this.dimension);
 
         int x = this.caller.getLocation().getBlockX();
         int y = this.caller.getLocation().getBlockY();
         int z = this.caller.getLocation().getBlockZ();
+
+        this.world = this.caller.getWorld();
+        this.worldData = new WorldData(this.world, this.dimension, new Location(x, y, z));
 
         this.caller.sendMessage("Initializing Nest Builder at (" + x + ", " + y + ", " + z + ") with a dimension of " + dimension + " over " + duration + " seconds...");
 
@@ -67,8 +69,13 @@ public class Mediator implements Runnable {
         boolean done = false;
         int count = 0;
 
+        long startTime = 0;
+        long endTime = 0;
+        long currentStep = 0;
+
         // TODO: Run the bot
         while (!done) {
+            startTime = System.currentTimeMillis();
 
             // process termite actions
             for (Termite termite : termites) {
@@ -81,17 +88,23 @@ public class Mediator implements Runnable {
             }
 
             worldData.diffusePheromones();
+            
             worldData.evaporatePheromones();
+
+            endTime = System.currentTimeMillis();
+            currentStep = this.timestep - (endTime - startTime);
             
             try {
-              Thread.sleep(this.timestep);
+                if (currentStep > 0) {
+                    Thread.sleep(currentStep);
+                }
             } catch (InterruptedException ex) {
                 Logger.getLogger(Mediator.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             // temporary limit to how long it runs
             count++;
-            if (count >= 100) {
+            if (count >= TIME_STEPS) {
                 done = true;
             }
         }
@@ -136,6 +149,8 @@ public class Mediator implements Runnable {
             }
         }
 
+        this.caller.sendMessage("Builders: " + builderLocs.size());
+
         // check to make sure our server can handle the NPC's
         int numNPCs = queenLocs.size() + builderLocs.size() + trailLocs.size();
         if (numNPCs + npcCount > NPC_MAX) {
@@ -148,7 +163,11 @@ public class Mediator implements Runnable {
         }
 
         // add in the builder termites
-        for (Location loc : builderLocs) {
+//        for (Location loc : builderLocs) {
+//            termites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData));
+//        }
+        for (int i = 0; i < this.BUILDERS; i++) {
+            Location loc = builderLocs.get(i % builderLocs.size());
             termites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData));
         }
 

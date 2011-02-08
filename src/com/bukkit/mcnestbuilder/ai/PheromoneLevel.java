@@ -25,4 +25,8 @@ public class PheromoneLevel {
             this.trailPheromone  = pl.trailPheromone;
             this.cementPheromone = pl.cementPheromone;
         }
+
+        public String toString() {
+            return this.queenPheromone + " " + this.cementPheromone + " " + this.trailPheromone;
+        }
 }

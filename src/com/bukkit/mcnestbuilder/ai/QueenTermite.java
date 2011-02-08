@@ -16,10 +16,12 @@ import org.bukkit.npcspawner.NpcSpawner;
  */
 public class QueenTermite implements Termite {
 
-    BasicHumanNpc npc;
-    WorldData world;
+    private BasicHumanNpc npc;
+    private WorldData world;
 
-    double x, y, z;
+    private int x, y, z;
+
+    private final double lay_rate = 600;
 
     public QueenTermite(int x, int y, int z, WorldData world) {
         this.x = x;
@@ -31,11 +33,12 @@ public class QueenTermite implements Termite {
     }
 
     public void act() {
-        // TODO: Implement QueenTermite.act()
+        // do nothing
     }
 
     public void layPheromone() {
 //        throw new UnsupportedOperationException("Not supported yet.");
+        world.getBlockPheromones(x, y, z).queenPheromone += lay_rate;
     }
 
     public void destroy() {

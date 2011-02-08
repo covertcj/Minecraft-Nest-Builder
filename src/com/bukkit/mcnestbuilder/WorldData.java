@@ -23,13 +23,24 @@ public class WorldData {
 
     private int dimension;
 
-    private final double diffuse_rate = 1/7;
-    private final double evaporation_rate = 0.1;
+    private final double diffuse_rate = 1.0/7;
+    private final double evaporation_rate = 0.9;
     
-    public WorldData(World world, int dimension) {
+    public WorldData(World world, int dimension, Location playerLoc) {
         this.world = world;
 
         this.pheromoneLevels = new HashMap<Location, PheromoneLevel>();
+
+        int xoff = playerLoc.x - dimension / 2;
+        int zoff = playerLoc.z - dimension / 2;
+
+        for (int x = xoff; x < dimension + xoff; x++) {
+            for (int y = 0; y < 128; y++) {
+                for (int z = zoff; z < dimension + zoff; z++) {
+                    this.pheromoneLevels.put(new Location(x, y, z), new PheromoneLevel());
+               }
+            }
+        }
         
         this.dimension = dimension;
     }
@@ -76,10 +87,6 @@ public class WorldData {
         if (pheromoneLevels.containsKey(loc)) {
             pl = pheromoneLevels.get(loc);
         }
-        else {
-            pl = new PheromoneLevel();
-            pheromoneLevels.put(loc, pl);
-        }
 
         return pl;
     }
@@ -116,20 +123,25 @@ public class WorldData {
         PheromoneLevel newLevel = new PheromoneLevel(pl);
         newPheromoneLevels.put(loc, newLevel);
 
-        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x + 1, loc.y,     loc.z)),     newLevel);
-        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x - 1, loc.y,     loc.z)),     newLevel);
-        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x,     loc.y + 1, loc.z)),     newLevel);
-        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x,     loc.y - 1, loc.z)),     newLevel);
-        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x,     loc.y,     loc.z + 1)), newLevel);
-        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x,     loc.y,     loc.z - 1)), newLevel);
+        updatePheromone(pl, getBlockPheromones(loc.x + 1, loc.y,     loc.z),     newLevel);
+        updatePheromone(pl, getBlockPheromones(loc.x - 1, loc.y,     loc.z),     newLevel);
+        updatePheromone(pl, getBlockPheromones(loc.x,     loc.y + 1, loc.z),     newLevel);
+        updatePheromone(pl, getBlockPheromones(loc.x,     loc.y - 1, loc.z),     newLevel);
+        updatePheromone(pl, getBlockPheromones(loc.x,     loc.y,     loc.z + 1), newLevel);
+        updatePheromone(pl, getBlockPheromones(loc.x,     loc.y,     loc.z - 1), newLevel);
 
     }
 
     private void updatePheromone(PheromoneLevel updatee, PheromoneLevel updater, PheromoneLevel newLevel) {
-        
+
+        if (updater == null) {
+            return;
+        }
+
         newLevel.cementPheromone += (updater.cementPheromone - updatee.cementPheromone) * diffuse_rate;
         newLevel.queenPheromone  += (updater.queenPheromone  - updatee.queenPheromone)  * diffuse_rate;
         newLevel.trailPheromone  += (updater.trailPheromone  - updatee.trailPheromone)  * diffuse_rate;
+        
     }
 
     /**
