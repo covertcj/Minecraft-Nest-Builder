@@ -7,6 +7,7 @@ package com.bukkit.mcnestbuilder;
 
 import com.bukkit.mcnestbuilder.ai.PheromoneLevel;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import org.bukkit.Material;
 import org.bukkit.World;
 
@@ -16,11 +17,14 @@ import org.bukkit.World;
  */
 public class WorldData {
     
-    World world;
+    private World world;
 
-    HashMap<Location, PheromoneLevel> pheromoneLevels;
+    private HashMap<Location, PheromoneLevel> pheromoneLevels;
 
-    int dimension;
+    private int dimension;
+
+    private final double diffuse_rate = 1/7;
+    private final double evaporation_rate = 0.1;
     
     public WorldData(World world, int dimension) {
         this.world = world;
@@ -94,14 +98,48 @@ public class WorldData {
     /**
      * Diffuses the pheromones for each block onto adjacent blocks.
      */
-    public void DiffusePheromones() {
-        // TODO: Implement WorldData.DiffusePheromone()
+    public void diffusePheromones() {
+        HashMap<Location, PheromoneLevel> newPheromoneLevels = new HashMap<Location, PheromoneLevel>();
+
+        for (Entry<Location,PheromoneLevel> entries : pheromoneLevels.entrySet()) {
+            Location loc = entries.getKey();
+            PheromoneLevel pl = entries.getValue();
+
+            diffusePheromone(loc, pl, newPheromoneLevels);
+        }
+
+        pheromoneLevels = newPheromoneLevels;
     }
-    
+
+    private void diffusePheromone(Location loc, PheromoneLevel pl, HashMap<Location, PheromoneLevel> newPheromoneLevels) {
+        // enter this location into the map
+        PheromoneLevel newLevel = new PheromoneLevel(pl);
+        newPheromoneLevels.put(loc, newLevel);
+
+        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x + 1, loc.y,     loc.z)),     newLevel);
+        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x - 1, loc.y,     loc.z)),     newLevel);
+        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x,     loc.y + 1, loc.z)),     newLevel);
+        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x,     loc.y - 1, loc.z)),     newLevel);
+        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x,     loc.y,     loc.z + 1)), newLevel);
+        updatePheromone(pl, pheromoneLevels.get(new Location(loc.x,     loc.y,     loc.z - 1)), newLevel);
+
+    }
+
+    private void updatePheromone(PheromoneLevel updatee, PheromoneLevel updater, PheromoneLevel newLevel) {
+        
+        newLevel.cementPheromone += (updater.cementPheromone - updatee.cementPheromone) * diffuse_rate;
+        newLevel.queenPheromone  += (updater.queenPheromone  - updatee.queenPheromone)  * diffuse_rate;
+        newLevel.trailPheromone  += (updater.trailPheromone  - updatee.trailPheromone)  * diffuse_rate;
+    }
+
     /**
      * Partially evaporates all pheromones in the world.
      */
-    public void EvaporatePheromones() {
-        // TODO: Implement WorldData.EvaporatePheromones()
+    public void evaporatePheromones() {
+        for (PheromoneLevel pl : pheromoneLevels.values()) {
+            pl.cementPheromone = pl.cementPheromone * evaporation_rate;
+            pl.queenPheromone  = pl.queenPheromone  * evaporation_rate;
+            pl.trailPheromone  = pl.trailPheromone  * evaporation_rate;
+        }
     }
 }

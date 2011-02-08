@@ -80,9 +80,8 @@ public class Mediator implements Runnable {
                 termite.layPheromone();
             }
 
-            // TODO: diffuse pheromones
-
-            // TODO: diminish pheromones
+            worldData.diffusePheromones();
+            worldData.evaporatePheromones();
             
             try {
               Thread.sleep(this.timestep);
