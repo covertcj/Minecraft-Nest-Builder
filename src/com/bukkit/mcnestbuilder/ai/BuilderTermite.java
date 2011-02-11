@@ -7,6 +7,7 @@ package com.bukkit.mcnestbuilder.ai;
 
 import com.bukkit.mcnestbuilder.Location;
 import com.bukkit.mcnestbuilder.Mediator;
+import com.bukkit.mcnestbuilder.TermiteDestructor;
 import com.bukkit.mcnestbuilder.WorldData;
 import java.util.ArrayList;
 import org.bukkit.Material;
@@ -38,7 +39,7 @@ public class BuilderTermite implements Termite {
 
     final Material block_material = Material.GOLD_BLOCK;
 
-    public BuilderTermite(int x, int y, int z, WorldData world, BasicHumanNpcList npcs) {
+    public BuilderTermite(int x, int y, int z, WorldData world) {
         this.xO = x;
         this.yO = y;
         this.zO = z;
@@ -49,7 +50,10 @@ public class BuilderTermite implements Termite {
 
         String key = Mediator.getNextNPCID();
         npc = NpcSpawner.SpawnBasicHumanNpc(key, "BuilderTermite", world.getWorld(), x, y, z, 0, 0);
-        npcs.put(key, npc);
+
+        synchronized(TermiteDestructor.npcLock) {
+            TermiteDestructor.npcs.put(key, npc);
+        }
     }
 
     public void act(int timeStep) {

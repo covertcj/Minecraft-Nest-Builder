@@ -17,8 +17,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.block.CraftSign;
 import org.bukkit.entity.Player;
-import org.bukkit.npcspawner.BasicHumanNpcList;
-import org.bukkit.npcspawner.BasicNpc;
 
 /**
  *
@@ -49,11 +47,14 @@ public class Mediator implements Runnable {
     public static final int Y_OFFSET_DOWN = 25;
     public static final int Y_OFFSET_UP   = 35;
 
+    public static boolean running = false;
+    public static final Object runningLock = new Object();
+
     public Mediator(Player player, int dimension, int duration) {
 
         this.dimension = dimension;
         this.duration = duration;
-        this.timestep = (duration * 1000) / TIME_STEPS_BUILDER;
+        this.timestep = (duration * 1000) / (TIME_STEPS_BUILDER - TIME_STEPS_TRAIL);
 
         this.caller = player;
 
@@ -77,8 +78,12 @@ public class Mediator implements Runnable {
      */
     public void run() {
 
+        synchronized(runningLock) {
+            running = true;
+        }
+
         boolean done = false;
-        int currentStep = TIME_STEPS_TRAIL;
+        int currentStep = 0;
 
         long startTime = 0;
         long endTime = 0;
@@ -97,7 +102,7 @@ public class Mediator implements Runnable {
             }
 
             worldData.diffusePheromones();
-            
+
             worldData.evaporatePheromones();
 
             if (currentStep > TIME_STEPS_TRAIL) {
@@ -121,27 +126,30 @@ public class Mediator implements Runnable {
         }
 
         // cleanup
-        this.caller.performCommand("/nestdestroynpc");
         this.caller.sendMessage("Nest Building process has completed.");
+
+        synchronized(runningLock) {
+            running = false;
+        }
     }
 
-    public boolean InitializeTermtites(BasicHumanNpcList npcs) {
-        int queenX = this.caller.getLocation().getBlockX();
-        int queenY = this.caller.getLocation().getBlockY();
-        int queenZ = this.caller.getLocation().getBlockZ();
+    public boolean InitializeTermtites() {
+        int playerX = this.caller.getLocation().getBlockX();
+        int playerY = this.caller.getLocation().getBlockY();
+        int playerZ = this.caller.getLocation().getBlockZ();
 
-        int xOrigin = queenX - dimension / 2;
-        int zOrigin = queenZ - dimension / 2;
+        int xOrigin = playerX - dimension / 2;
+        int zOrigin = playerZ - dimension / 2;
 
         ArrayList<Location> queenLocs = new ArrayList<Location>();
         ArrayList<Location> builderLocs = new ArrayList<Location>();
         ArrayList<Location> trailLocs = new ArrayList<Location>();
 
         // find the main queen location
-        queenLocs.add(new Location(queenX, queenY, queenZ));
+        //queenLocs.add(new Location(queenX, queenY, queenZ));
 
-        int yMin = queenY - Y_OFFSET_DOWN;
-        int yMax = queenY + Y_OFFSET_UP;
+        int yMin = playerY - Y_OFFSET_DOWN;
+        int yMax = playerY + Y_OFFSET_UP;
 
         // find the locations of other termites
         for (int x = xOrigin; x < dimension + xOrigin; x++) {
@@ -178,7 +186,7 @@ public class Mediator implements Runnable {
 
         // add in the queen termites
         for (Location loc : queenLocs) {
-            queenTermites.add(new QueenTermite(loc.x, loc.y, loc.z, worldData, npcs));
+            queenTermites.add(new QueenTermite(loc.x, loc.y, loc.z, worldData));
         }
 
         // add in the builder termites
@@ -187,12 +195,12 @@ public class Mediator implements Runnable {
 //        }
         for (int i = 0; i < BUILDERS; i++) {
             Location loc = builderLocs.get(i % builderLocs.size());
-            builderTermites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData, npcs));
+            builderTermites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData));
         }
 
         // add in the trail termites
         for (Location loc : trailLocs) {
-            trailTermites.add(new TrailTermite(loc.x, loc.y, loc.z, worldData, npcs));
+            trailTermites.add(new TrailTermite(loc.x, loc.y, loc.z, worldData));
         }
 
         termites.addAll(queenTermites);

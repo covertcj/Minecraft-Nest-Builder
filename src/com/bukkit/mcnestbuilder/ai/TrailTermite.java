@@ -23,7 +23,7 @@ public class TrailTermite implements Termite {
 
     double x, y, z;
 
-    public TrailTermite(int x, int y, int z, WorldData world, BasicHumanNpcList npcs) {
+    public TrailTermite(int x, int y, int z, WorldData world) {
         this.x = x;
         this.y = y;
         this.z = z;

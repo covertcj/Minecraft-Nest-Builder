@@ -9,6 +9,7 @@ package com.bukkit.mcnestbuilder.plugin;
  *
  * @author covertcj
  */
+import com.bukkit.mcnestbuilder.TermiteDestructor;
 import java.io.File;
 import java.util.HashMap;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.scheduler.BukkitScheduler;
 
 /**
  * Sample plugin for Bukkit
@@ -50,16 +52,15 @@ public class NestBuilder extends JavaPlugin {
     }
 
     public void onEnable() {
-        // TODO: Place any custom enable code here including the registration of any events
 
-        // Register our events
         PluginManager pm = getServer().getPluginManager();
-//        pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
-//        pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Normal, this);
+        BukkitScheduler sched = getServer().getScheduler();
+
+        // register events
         pm.registerEvent(Event.Type.PLAYER_COMMAND, playerListener, Priority.Normal, this);
-//        pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Normal, this);
-//        pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
-//        pm.registerEvent(Event.Type.BLOCK_CANBUILD, blockListener, Priority.Normal, this);
+
+        // schedule events
+        sched.scheduleSyncRepeatingTask(this, new TermiteDestructor(), 50, 50);
 
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
         PluginDescriptionFile pdfFile = this.getDescription();

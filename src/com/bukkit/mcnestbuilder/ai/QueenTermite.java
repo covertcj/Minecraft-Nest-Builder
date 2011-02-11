@@ -6,6 +6,7 @@
 package com.bukkit.mcnestbuilder.ai;
 
 import com.bukkit.mcnestbuilder.Mediator;
+import com.bukkit.mcnestbuilder.TermiteDestructor;
 import com.bukkit.mcnestbuilder.WorldData;
 import org.bukkit.npcspawner.BasicHumanNpc;
 import org.bukkit.npcspawner.BasicHumanNpcList;
@@ -24,7 +25,7 @@ public class QueenTermite implements Termite {
 
     private final double lay_rate = 1000;
 
-    public QueenTermite(int x, int y, int z, WorldData world, BasicHumanNpcList npcs) {
+    public QueenTermite(int x, int y, int z, WorldData world) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -32,7 +33,10 @@ public class QueenTermite implements Termite {
 
         String key = Mediator.getNextNPCID();
         npc = NpcSpawner.SpawnBasicHumanNpc(key, "QueenTermite", world.getWorld(), x, y, z, 0, 0);
-        npcs.put(key, npc);
+
+        synchronized(TermiteDestructor.npcLock) {
+            TermiteDestructor.npcs.put(key, npc);
+        }
     }
 
     public void act(int timeStep) {

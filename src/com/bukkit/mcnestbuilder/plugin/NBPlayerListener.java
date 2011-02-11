@@ -34,14 +34,6 @@ public class NBPlayerListener extends PlayerListener {
             String sub = message.substring(6);
 
             if (player.isOp()) {
-                if (message.equals("/nestdestroynpc")) {
-                    event.setCancelled(true);
-
-                    for (BasicHumanNpc npc : npcs.values()) {
-                        NpcSpawner.RemoveBasicHumanNpc(npc);
-                    }
-                }
-
                 if (!cmd.equalsIgnoreCase("nest")) {
                     return;
                 }
@@ -72,7 +64,7 @@ public class NBPlayerListener extends PlayerListener {
 
                         // setup the AI
                         Mediator mediator = new Mediator(player, size, timestep);
-                        if (!mediator.InitializeTermtites(npcs)) {
+                        if (!mediator.InitializeTermtites()) {
                             player.sendMessage("Error: There are too many NPC's, wait for some to despawn.");
                         }
 
