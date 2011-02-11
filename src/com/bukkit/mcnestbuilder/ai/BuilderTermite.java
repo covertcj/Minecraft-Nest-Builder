@@ -11,6 +11,7 @@ import com.bukkit.mcnestbuilder.WorldData;
 import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.npcspawner.BasicHumanNpc;
+import org.bukkit.npcspawner.BasicHumanNpcList;
 import org.bukkit.npcspawner.NpcSpawner;
 
 /**
@@ -28,14 +29,16 @@ public class BuilderTermite implements Termite {
 
     final int movement_spaces = 5;
     final double wander_weight = 1;
-    final double place_probability = 1;
+    final double place_probability = 0.5;
 
     final double min_block_pheromone = 0.1;
     final double max_block_pheromone = 0.4;
 
+    final double lay_rate = 1;
+
     final Material block_material = Material.GOLD_BLOCK;
 
-    public BuilderTermite(int x, int y, int z, WorldData world) {
+    public BuilderTermite(int x, int y, int z, WorldData world, BasicHumanNpcList npcs) {
         this.xO = x;
         this.yO = y;
         this.zO = z;
@@ -44,12 +47,17 @@ public class BuilderTermite implements Termite {
         this.z = z;
         this.world = world;
 
-        npc = NpcSpawner.SpawnBasicHumanNpc(Mediator.getNextNPCID(), "BuilderTermite", world.getWorld(), x, y, z, 0, 0);
+        String key = Mediator.getNextNPCID();
+        npc = NpcSpawner.SpawnBasicHumanNpc(key, "BuilderTermite", world.getWorld(), x, y, z, 0, 0);
+        npcs.put(key, npc);
     }
 
-    public void act() {
-        move();
-        placeBlock();
+    public void act(int timeStep) {
+        if (timeStep > Mediator.TIME_STEPS_TRAIL) {
+
+            move();
+            placeBlock();
+        }
     }
 
     private void placeBlock() {
@@ -59,15 +67,45 @@ public class BuilderTermite implements Termite {
             (pl.trailPheromone > min_block_pheromone && pl.trailPheromone < max_block_pheromone)) {
 
             if (Math.random() < place_probability) {
-                this.world.setBlockType(x, y, z, block_material);
+                this.world.setBlockType(x, y, z, getMaterial());
+                this.world.getBlockPheromones(x, y, z).cementPheromone += lay_rate;
 
                 this.x = this.xO;
                 this.y = this.yO;
                 this.z = this.zO;
 
-                npc.moveTo(this.x, this.x, this.x, 0, 0);
+                if (npc != null) {
+                    npc.moveTo(this.x, this.x, this.x, 0, 0);
+                }
             }
         }
+    }
+
+    private Material getMaterial() {
+        for (int xoff = -1; xoff <= 1; xoff++) {
+            for (int yoff = -1; yoff <= 1; yoff++) {
+                for (int zoff = -1; zoff <= 1; zoff++) {
+                    Material m = world.getBlockType(this.x + xoff, this.y + yoff, this.z + zoff);
+                    if (isMaterialSolid(m)) {
+                        return m;
+                    }
+                }
+            }
+        }
+
+        return this.block_material;
+    }
+
+    private boolean isMaterialSolid(Material m) {
+        if (m == Material.AIR ||
+            m == Material.WATER ||
+            m == Material.LAVA ||
+            m == Material.LEAVES ||
+            m == Material.SUGAR_CANE_BLOCK) {
+            return false;
+        }
+
+        return true;
     }
 
     private void move() {
@@ -87,7 +125,9 @@ public class BuilderTermite implements Termite {
             }
         }
 
-        npc.moveTo(this.x, this.y, this.z, 0, 0);
+        if (npc != null) {
+            npc.moveTo(this.x, this.y, this.z, 0, 0);
+        }
     }
 
     private Location getMoveLocation(ArrayList<Location> locs) {
@@ -166,13 +206,15 @@ public class BuilderTermite implements Termite {
         return false;
     }
 
-    public void layPheromone() {
+    public void layPheromone(int timeStep) {
         // do nothing
     }
 
     public void destroy() {
-        NpcSpawner.RemoveBasicHumanNpc(npc);
-        Mediator.releaseNPC();
+        if (npc != null) {
+            NpcSpawner.RemoveBasicHumanNpc(npc);
+            Mediator.releaseNPC();
+        }
     }
 
 }

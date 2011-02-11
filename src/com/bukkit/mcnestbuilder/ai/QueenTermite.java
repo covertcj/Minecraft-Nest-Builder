@@ -8,6 +8,7 @@ package com.bukkit.mcnestbuilder.ai;
 import com.bukkit.mcnestbuilder.Mediator;
 import com.bukkit.mcnestbuilder.WorldData;
 import org.bukkit.npcspawner.BasicHumanNpc;
+import org.bukkit.npcspawner.BasicHumanNpcList;
 import org.bukkit.npcspawner.NpcSpawner;
 
 /**
@@ -23,27 +24,31 @@ public class QueenTermite implements Termite {
 
     private final double lay_rate = 600;
 
-    public QueenTermite(int x, int y, int z, WorldData world) {
+    public QueenTermite(int x, int y, int z, WorldData world, BasicHumanNpcList npcs) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.world = world;
 
-        npc = NpcSpawner.SpawnBasicHumanNpc(Mediator.getNextNPCID(), "QueenTermite", world.getWorld(), x, y, z, 0, 0);
+        String key = Mediator.getNextNPCID();
+        npc = NpcSpawner.SpawnBasicHumanNpc(key, "QueenTermite", world.getWorld(), x, y, z, 0, 0);
+        npcs.put(key, npc);
     }
 
-    public void act() {
+    public void act(int timeStep) {
         // do nothing
     }
 
-    public void layPheromone() {
+    public void layPheromone(int timeStep) {
 //        throw new UnsupportedOperationException("Not supported yet.");
         world.getBlockPheromones(x, y, z).queenPheromone += lay_rate;
     }
 
     public void destroy() {
-        NpcSpawner.RemoveBasicHumanNpc(npc);
-        Mediator.releaseNPC();
+        if (npc != null) {
+            NpcSpawner.RemoveBasicHumanNpc(npc);
+            Mediator.releaseNPC();
+        }
     }
 
 }

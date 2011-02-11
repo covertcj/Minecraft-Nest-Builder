@@ -17,6 +17,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.block.CraftSign;
 import org.bukkit.entity.Player;
+import org.bukkit.npcspawner.BasicHumanNpcList;
+import org.bukkit.npcspawner.BasicNpc;
 
 /**
  *
@@ -24,22 +26,26 @@ import org.bukkit.entity.Player;
  */
 public class Mediator implements Runnable {
 
-    final int TIME_STEPS = 1000;
-    final int BUILDERS = 50;
+    public static final int TIME_STEPS_TRAIL = 500;
+    public static final int TIME_STEPS_BUILDER = 1250 + TIME_STEPS_TRAIL;
+    public static final int BUILDERS = 100;
 
     Player caller;
     World world;
     WorldData worldData;
 
+    ArrayList<QueenTermite> queenTermites;
+    ArrayList<BuilderTermite> builderTermites;
+    ArrayList<TrailTermite> trailTermites;
     ArrayList<Termite> termites;
 
     int dimension;
     int timestep;
     int duration;
 
-    static final int NPC_MAX = 500;
-    static int npcID;
-    static int npcCount;
+    public static final int NPC_MAX = 500;
+    public static int npcID;
+    public static int npcCount;
     public static final int Y_OFFSET_DOWN = 25;
     public static final int Y_OFFSET_UP   = 35;
 
@@ -47,7 +53,7 @@ public class Mediator implements Runnable {
 
         this.dimension = dimension;
         this.duration = duration;
-        this.timestep = (duration * 1000) / TIME_STEPS;
+        this.timestep = (duration * 1000) / TIME_STEPS_BUILDER;
 
         this.caller = player;
 
@@ -60,6 +66,9 @@ public class Mediator implements Runnable {
 
         this.caller.sendMessage("Initializing Nest Builder at (" + x + ", " + y + ", " + z + ") with a dimension of " + dimension + " over " + duration + " seconds...");
 
+        queenTermites = new ArrayList<QueenTermite>();
+        builderTermites = new ArrayList<BuilderTermite>();
+        trailTermites = new ArrayList<TrailTermite>();
         termites = new ArrayList<Termite>();
     }
 
@@ -69,54 +78,54 @@ public class Mediator implements Runnable {
     public void run() {
 
         boolean done = false;
-        int count = 0;
+        int currentStep = TIME_STEPS_TRAIL;
 
         long startTime = 0;
         long endTime = 0;
-        long currentStep = 0;
+        long timeToSleep = 0;
 
         // TODO: Run the bot
         while (!done) {
             startTime = System.currentTimeMillis();
 
-            // process termite actions
             for (Termite termite : termites) {
-                termite.act();
+                termite.act(currentStep);
             }
 
-            // update pheromones based on termite positions
             for (Termite termite : termites) {
-                termite.layPheromone();
+                termite.layPheromone(currentStep);
             }
 
             worldData.diffusePheromones();
             
             worldData.evaporatePheromones();
 
-            endTime = System.currentTimeMillis();
-            currentStep = this.timestep - (endTime - startTime);
-            
-            try {
-                if (currentStep > 0) {
-                    Thread.sleep(currentStep);
+            if (currentStep > TIME_STEPS_TRAIL) {
+                endTime = System.currentTimeMillis();
+                timeToSleep = this.timestep - (endTime - startTime);
+
+                try {
+                    if (timeToSleep > 0) {
+                        Thread.sleep(timeToSleep);
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Mediator.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Mediator.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             // temporary limit to how long it runs
-            count++;
-            if (count >= TIME_STEPS) {
+            currentStep++;
+            if (currentStep >= TIME_STEPS_BUILDER) {
                 done = true;
             }
         }
 
         // cleanup
-        destroyTermites();
+        this.caller.performCommand("/nestdestroynpc");
         this.caller.sendMessage("Nest Building process has completed.");
     }
 
-    public boolean InitializeTermtites() {
+    public boolean InitializeTermtites(BasicHumanNpcList npcs) {
         int queenX = this.caller.getLocation().getBlockX();
         int queenY = this.caller.getLocation().getBlockY();
         int queenZ = this.caller.getLocation().getBlockZ();
@@ -143,6 +152,13 @@ public class Mediator implements Runnable {
 
                     // if the current block is a sign, we might have found a location for a termite
                     if (current.getType() == Material.SIGN_POST) {
+                        // check if it is a queen sign
+                        if (((CraftSign) current.getState()).getLine(0).equalsIgnoreCase("queen")) {
+
+                            // add a builder location
+                            queenLocs.add(new Location(x, y, z));
+                        }
+
                         // check if it is a builder sign
                         if (((CraftSign) current.getState()).getLine(0).equalsIgnoreCase("builder")) {
 
@@ -154,8 +170,6 @@ public class Mediator implements Runnable {
             }
         }
 
-        this.caller.sendMessage("Builders: " + builderLocs.size());
-
         // check to make sure our server can handle the NPC's
         int numNPCs = queenLocs.size() + builderLocs.size() + trailLocs.size();
         if (numNPCs + npcCount > NPC_MAX) {
@@ -164,28 +178,40 @@ public class Mediator implements Runnable {
 
         // add in the queen termites
         for (Location loc : queenLocs) {
-            termites.add(new QueenTermite(loc.x, loc.y, loc.z, worldData));
+            queenTermites.add(new QueenTermite(loc.x, loc.y, loc.z, worldData, npcs));
         }
 
         // add in the builder termites
 //        for (Location loc : builderLocs) {
 //            termites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData));
 //        }
-        for (int i = 0; i < this.BUILDERS; i++) {
+        for (int i = 0; i < BUILDERS; i++) {
             Location loc = builderLocs.get(i % builderLocs.size());
-            termites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData));
+            builderTermites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData, npcs));
         }
 
         // add in the trail termites
         for (Location loc : trailLocs) {
-            termites.add(new TrailTermite(loc.x, loc.y, loc.z, worldData));
-        } 
+            trailTermites.add(new TrailTermite(loc.x, loc.y, loc.z, worldData, npcs));
+        }
+
+        termites.addAll(queenTermites);
+        termites.addAll(builderTermites);
+        termites.addAll(trailTermites);
 
         return true;
     }
 
     private void destroyTermites() {
-        for (Termite termite : termites) {
+        for (Termite termite : queenTermites) {
+            termite.destroy();
+        }
+
+        for (Termite termite : builderTermites) {
+            termite.destroy();
+        }
+        
+        for (Termite termite : trailTermites) {
             termite.destroy();
         }
     }

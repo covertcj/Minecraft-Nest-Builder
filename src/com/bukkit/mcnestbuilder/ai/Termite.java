@@ -10,9 +10,9 @@ package com.bukkit.mcnestbuilder.ai;
  * @author covertcj
  */
 public interface Termite {
-        public void act();
+        public void act(int timeStep);
         
-	public void layPheromone();
+	public void layPheromone(int timeStep);
 
         public void destroy();
 }

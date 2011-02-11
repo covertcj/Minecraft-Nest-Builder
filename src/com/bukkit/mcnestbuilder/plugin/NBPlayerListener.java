@@ -4,6 +4,9 @@ import com.bukkit.mcnestbuilder.Mediator;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.npcspawner.BasicHumanNpc;
+import org.bukkit.npcspawner.BasicHumanNpcList;
+import org.bukkit.npcspawner.NpcSpawner;
 
 /**
  * Handle events for all Player related events
@@ -12,8 +15,11 @@ import org.bukkit.event.player.PlayerListener;
 public class NBPlayerListener extends PlayerListener {
     private final NestBuilder plugin;
 
+    BasicHumanNpcList npcs;
+
     public NBPlayerListener(NestBuilder instance) {
         plugin = instance;
+        npcs = new BasicHumanNpcList();
     }
 
     //Insert Player related code here
@@ -28,6 +34,14 @@ public class NBPlayerListener extends PlayerListener {
             String sub = message.substring(6);
 
             if (player.isOp()) {
+                if (message.equals("/nestdestroynpc")) {
+                    event.setCancelled(true);
+
+                    for (BasicHumanNpc npc : npcs.values()) {
+                        NpcSpawner.RemoveBasicHumanNpc(npc);
+                    }
+                }
+
                 if (!cmd.equalsIgnoreCase("nest")) {
                     return;
                 }
@@ -46,19 +60,19 @@ public class NBPlayerListener extends PlayerListener {
                     }
                     else {
                         int size = NestBuilder.DEFAULT_DIMENSION;
-                        int duration = NestBuilder.DEFAULT_DURATION;
+                        int timestep = NestBuilder.DEFAULT_DURATION;
 
                         if (args.length >= 1) {
                             size = Integer.valueOf(args[0]);
                         }
 
                         if (args.length >= 2) {
-                            duration = Integer.valueOf(args[1]);
+                            timestep = Integer.valueOf(args[1]);
                         }
 
                         // setup the AI
-                        Mediator mediator = new Mediator(player, size, duration);
-                        if (!mediator.InitializeTermtites()) {
+                        Mediator mediator = new Mediator(player, size, timestep);
+                        if (!mediator.InitializeTermtites(npcs)) {
                             player.sendMessage("Error: There are too many NPC's, wait for some to despawn.");
                         }
 
