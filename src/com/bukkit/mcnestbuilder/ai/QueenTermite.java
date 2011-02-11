@@ -22,7 +22,7 @@ public class QueenTermite implements Termite {
 
     private int x, y, z;
 
-    private final double lay_rate = 600;
+    private final double lay_rate = 1000;
 
     public QueenTermite(int x, int y, int z, WorldData world, BasicHumanNpcList npcs) {
         this.x = x;
