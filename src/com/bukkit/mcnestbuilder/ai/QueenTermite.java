@@ -6,10 +6,10 @@
 package com.bukkit.mcnestbuilder.ai;
 
 import com.bukkit.mcnestbuilder.Mediator;
+import com.bukkit.mcnestbuilder.Settings;
 import com.bukkit.mcnestbuilder.TermiteDestructor;
 import com.bukkit.mcnestbuilder.WorldData;
 import org.bukkit.npcspawner.BasicHumanNpc;
-import org.bukkit.npcspawner.BasicHumanNpcList;
 import org.bukkit.npcspawner.NpcSpawner;
 
 /**
@@ -22,8 +22,6 @@ public class QueenTermite implements Termite {
     private WorldData world;
 
     private int x, y, z;
-
-    private final double lay_rate = 1000;
 
     public QueenTermite(int x, int y, int z, WorldData world) {
         this.x = x;
@@ -45,7 +43,7 @@ public class QueenTermite implements Termite {
 
     public void layPheromone(int timeStep) {
 //        throw new UnsupportedOperationException("Not supported yet.");
-        world.getBlockPheromones(x, y, z).queenPheromone += lay_rate;
+        world.getBlockPheromones(x, y, z).queenPheromone += Settings.QUEEN_LAY_RATE;
     }
 
     public void destroy() {

@@ -7,12 +7,12 @@ package com.bukkit.mcnestbuilder.ai;
 
 import com.bukkit.mcnestbuilder.Location;
 import com.bukkit.mcnestbuilder.Mediator;
+import com.bukkit.mcnestbuilder.Settings;
 import com.bukkit.mcnestbuilder.TermiteDestructor;
 import com.bukkit.mcnestbuilder.WorldData;
 import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.npcspawner.BasicHumanNpc;
-import org.bukkit.npcspawner.BasicHumanNpcList;
 import org.bukkit.npcspawner.NpcSpawner;
 
 /**
@@ -27,15 +27,6 @@ public class BuilderTermite implements Termite {
     int xO, yO, zO;
 
     int x, y, z;
-
-    final int movement_spaces = 5;
-    final double wander_weight = 1;
-    final double place_probability = 0.5;
-
-    final double min_block_pheromone = 0.1;
-    final double max_block_pheromone = 0.4;
-
-    final double lay_rate = 1;
 
     final Material block_material = Material.GOLD_BLOCK;
 
@@ -57,7 +48,7 @@ public class BuilderTermite implements Termite {
     }
 
     public void act(int timeStep) {
-        if (timeStep > Mediator.TIME_STEPS_TRAIL) {
+        if (timeStep > Settings.TIMESTEPS_BUILDER_START) {
 
             move();
             placeBlock();
@@ -67,12 +58,21 @@ public class BuilderTermite implements Termite {
     private void placeBlock() {
         PheromoneLevel pl = this.world.getBlockPheromones(this.x, this.y, this.z);
 
-        if ((pl.queenPheromone > min_block_pheromone && pl.queenPheromone < max_block_pheromone) ||
-            (pl.trailPheromone > min_block_pheromone && pl.trailPheromone < max_block_pheromone)) {
+        if ((pl.queenPheromone > Settings.BUILDER_MIN_PLACE_PHEROMONE && pl.queenPheromone < Settings.BUILDER_MAX_PLACE_PHEROMONE) ^
+            (pl.trailPheromone > Settings.BUILDER_MIN_PLACE_PHEROMONE && pl.trailPheromone < Settings.BUILDER_MAX_PLACE_PHEROMONE)) {
 
-            if (Math.random() < place_probability) {
-                this.world.setBlockType(x, y, z, getMaterial());
-                this.world.getBlockPheromones(x, y, z).cementPheromone += lay_rate;
+            if (Math.random() < Settings.BUILDER_PLACE_PROBABILITY) {
+                try {
+                    this.world.setBlockType(x, y, z, getMaterial());
+                } catch (NullPointerException ex) {
+                    System.out.println("=====================\nWTF, STUPID ERROR?!?!?!\n=====================");
+                    System.out.println("Mat: " + this.world.getBlockType(x, y, z));
+                    System.out.println("(" + x + ", " + y + ", " + z + ")");
+                    System.out.println("getMat(): " + getMaterial());
+                    System.out.println("=====================\n=====================\n=====================\n=====================\n=====================");
+                }
+
+                this.world.getBlockPheromones(x, y, z).cementPheromone += Settings.BUILDER_LAY_RATE;
 
                 this.x = this.xO;
                 this.y = this.yO;
@@ -105,7 +105,11 @@ public class BuilderTermite implements Termite {
             m == Material.WATER ||
             m == Material.LAVA ||
             m == Material.LEAVES ||
-            m == Material.SUGAR_CANE_BLOCK) {
+            m == Material.SUGAR_CANE_BLOCK ||
+            m == Material.SAND ||
+            m == Material.SIGN ||
+            m == Material.GRAVEL ||
+            m == Material.TORCH) {
             return false;
         }
 
@@ -113,7 +117,7 @@ public class BuilderTermite implements Termite {
     }
 
     private void move() {
-        for (int i = 0; i < movement_spaces; i++) {
+        for (int i = 0; i < Settings.BUILDER_MOVE_SPACES; i++) {
             ArrayList<Location> locs = generatePossibleMoves(this.x, this.y, this.z);
             Location loc = getMoveLocation(locs);
 
@@ -150,7 +154,7 @@ public class BuilderTermite implements Termite {
                 weights[index] = 0;
             }
             else {
-                weights[index] = wander_weight + pl.cementPheromone;
+                weights[index] = Settings.BUILDER_WANDER_WEIGHT + pl.cementPheromone;
             }
             
             total += weights[index];

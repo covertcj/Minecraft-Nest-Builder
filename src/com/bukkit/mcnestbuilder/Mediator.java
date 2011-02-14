@@ -24,10 +24,6 @@ import org.bukkit.entity.Player;
  */
 public class Mediator implements Runnable {
 
-    public static final int TIME_STEPS_TRAIL = 500;
-    public static final int TIME_STEPS_BUILDER = 1250 + TIME_STEPS_TRAIL;
-    public static final int BUILDERS = 100;
-
     Player caller;
     World world;
     WorldData worldData;
@@ -40,8 +36,7 @@ public class Mediator implements Runnable {
     int dimension;
     int timestep;
     int duration;
-
-    public static final int NPC_MAX = 500;
+    
     public static int npcID;
     public static int npcCount;
     public static final int Y_OFFSET_DOWN = 25;
@@ -50,11 +45,10 @@ public class Mediator implements Runnable {
     public static boolean running = false;
     public static final Object runningLock = new Object();
 
-    public Mediator(Player player, int dimension, int duration) {
+    public Mediator(Player player, int dimension, int timestep) {
 
         this.dimension = dimension;
-        this.duration = duration;
-        this.timestep = (duration * 1000) / (TIME_STEPS_BUILDER - TIME_STEPS_TRAIL);
+        this.timestep = timestep;
 
         this.caller = player;
 
@@ -89,40 +83,43 @@ public class Mediator implements Runnable {
         long endTime = 0;
         long timeToSleep = 0;
 
-        // TODO: Run the bot
+        // run the bot
         while (!done) {
             startTime = System.currentTimeMillis();
 
+            // perform all termite actions first
             for (Termite termite : termites) {
                 termite.act(currentStep);
             }
 
+            // lay pheromones after all termite actions
             for (Termite termite : termites) {
                 termite.layPheromone(currentStep);
             }
 
+            // update world pheromones
             worldData.diffusePheromones();
-
             worldData.evaporatePheromones();
 
-            if (currentStep > TIME_STEPS_TRAIL) {
-                endTime = System.currentTimeMillis();
-                timeToSleep = this.timestep - (endTime - startTime);
+            // calculate wait time to limit the timestep
+            endTime = System.currentTimeMillis();
+            timeToSleep = this.timestep - (endTime - startTime);
 
-                try {
-                    if (timeToSleep > 0) {
-                        Thread.sleep(timeToSleep);
-                    }
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Mediator.class.getName()).log(Level.SEVERE, null, ex);
+            // limit the timestep
+            try {
+                if (timeToSleep > 0) {
+                    Thread.sleep(timeToSleep);
                 }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Mediator.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            // temporary limit to how long it runs
+            // end the loop after so many iterations
             currentStep++;
-            if (currentStep >= TIME_STEPS_BUILDER) {
+            if (currentStep >= Settings.TIMESTEPS_FINISH) {
                 done = true;
             }
+
         }
 
         // cleanup
@@ -141,9 +138,9 @@ public class Mediator implements Runnable {
         int xOrigin = playerX - dimension / 2;
         int zOrigin = playerZ - dimension / 2;
 
-        ArrayList<Location> queenLocs = new ArrayList<Location>();
+        ArrayList<IDLocation> queenLocs = new ArrayList<IDLocation>();
         ArrayList<Location> builderLocs = new ArrayList<Location>();
-        ArrayList<Location> trailLocs = new ArrayList<Location>();
+        ArrayList<IDLocation> trailLocs = new ArrayList<IDLocation>();
 
         // find the main queen location
         //queenLocs.add(new Location(queenX, queenY, queenZ));
@@ -160,28 +157,37 @@ public class Mediator implements Runnable {
 
                     // if the current block is a sign, we might have found a location for a termite
                     if (current.getType() == Material.SIGN_POST) {
+                        CraftSign sign = ((CraftSign) (current.getState()));
+
                         // check if it is a queen sign
-                        if (((CraftSign) current.getState()).getLine(0).equalsIgnoreCase("queen")) {
+                        if (sign.getLine(0).equalsIgnoreCase("queen")) {
 
                             // add a builder location
-                            queenLocs.add(new Location(x, y, z));
+                            queenLocs.add(new IDLocation(x, y, z, Integer.valueOf(((CraftSign)current.getState()).getLine(1))));
+
+                            current.setTypeId(0);
                         }
 
                         // check if it is a builder sign
-                        if (((CraftSign) current.getState()).getLine(0).equalsIgnoreCase("builder")) {
+                        if (sign.getLine(0).equalsIgnoreCase("builder")) {
 
                             // add a builder location
                             builderLocs.add(new Location(x, y, z));
+
+                            current.setTypeId(0);
+                        }
+
+                        // check if it is a builder sign
+                        if (sign.getLine(0).equalsIgnoreCase("trail")) {
+
+                            // add a builder location
+                            trailLocs.add(new IDLocation(x, y, z, Integer.valueOf(((CraftSign)current.getState()).getLine(1))));
+
+                            current.setTypeId(0);
                         }
                     }
                 }
             }
-        }
-
-        // check to make sure our server can handle the NPC's
-        int numNPCs = queenLocs.size() + builderLocs.size() + trailLocs.size();
-        if (numNPCs + npcCount > NPC_MAX) {
-            return false;
         }
 
         // add in the queen termites
@@ -189,18 +195,28 @@ public class Mediator implements Runnable {
             queenTermites.add(new QueenTermite(loc.x, loc.y, loc.z, worldData));
         }
 
-        // add in the builder termites
-//        for (Location loc : builderLocs) {
-//            termites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData));
-//        }
-        for (int i = 0; i < BUILDERS; i++) {
+        // distribute a number of builders to the builder signs
+        for (int i = 0; i < Settings.BUILDER_COUNT; i++) {
             Location loc = builderLocs.get(i % builderLocs.size());
             builderTermites.add(new BuilderTermite(loc.x, loc.y, loc.z, worldData));
         }
 
         // add in the trail termites
-        for (Location loc : trailLocs) {
-            trailTermites.add(new TrailTermite(loc.x, loc.y, loc.z, worldData));
+        for (IDLocation loc : trailLocs) {
+            IDLocation targetLoc = null;
+
+            for (IDLocation queenLoc : queenLocs) {
+                if (queenLoc.id == loc.id) {
+                    targetLoc = queenLoc;
+                    break;
+                }
+            }
+
+            double dist = Math.sqrt(Math.pow(targetLoc.x - loc.x, 2.0) + Math.pow(targetLoc.y - loc.y, 2.0) + Math.pow(targetLoc.z - loc.z, 2.0));
+
+            for (int i = 0; i < dist; i++) {
+                trailTermites.add(new TrailTermite(loc.x, loc.y, loc.z, targetLoc, worldData));
+            }
         }
 
         termites.addAll(queenTermites);
@@ -208,20 +224,6 @@ public class Mediator implements Runnable {
         termites.addAll(trailTermites);
 
         return true;
-    }
-
-    private void destroyTermites() {
-        for (Termite termite : queenTermites) {
-            termite.destroy();
-        }
-
-        for (Termite termite : builderTermites) {
-            termite.destroy();
-        }
-        
-        for (Termite termite : trailTermites) {
-            termite.destroy();
-        }
     }
 
     public static String getNextNPCID() {

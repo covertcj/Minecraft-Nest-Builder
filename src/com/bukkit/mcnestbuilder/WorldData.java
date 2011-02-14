@@ -22,9 +22,6 @@ public class WorldData {
     private HashMap<Location, PheromoneLevel> pheromoneLevels;
 
     private int dimension;
-
-    private final double diffuse_rate = 1.0/7;
-    private final double evaporation_rate = 0.9;
     
     public WorldData(World world, int dimension, Location playerLoc) {
         this.world = world;
@@ -141,9 +138,9 @@ public class WorldData {
             return;
         }
 
-        newLevel.cementPheromone += (updater.cementPheromone - updatee.cementPheromone) * diffuse_rate;
-        newLevel.queenPheromone  += (updater.queenPheromone  - updatee.queenPheromone)  * diffuse_rate;
-        newLevel.trailPheromone  += (updater.trailPheromone  - updatee.trailPheromone)  * diffuse_rate;
+        newLevel.cementPheromone += (updater.cementPheromone - updatee.cementPheromone) * Settings.PHEROMONE_DIFFUSE_RATE;
+        newLevel.queenPheromone  += (updater.queenPheromone  - updatee.queenPheromone)  * Settings.PHEROMONE_DIFFUSE_RATE;
+        newLevel.trailPheromone  += (updater.trailPheromone  - updatee.trailPheromone)  * Settings.PHEROMONE_DIFFUSE_RATE_TRAIL;
         
     }
 
@@ -152,9 +149,9 @@ public class WorldData {
      */
     public void evaporatePheromones() {
         for (PheromoneLevel pl : pheromoneLevels.values()) {
-            pl.cementPheromone = pl.cementPheromone * evaporation_rate;
-            pl.queenPheromone  = pl.queenPheromone  * evaporation_rate;
-            pl.trailPheromone  = pl.trailPheromone  * evaporation_rate;
+            pl.cementPheromone = pl.cementPheromone * Settings.PHEROMONE_EVAPORATION_RATE;
+            pl.queenPheromone  = pl.queenPheromone  * Settings.PHEROMONE_EVAPORATION_RATE;
+            pl.trailPheromone  = pl.trailPheromone  * Settings.PHEROMONE_EVAPORATION_RATE_TRAIL;
         }
     }
 }

@@ -9,6 +9,7 @@ package com.bukkit.mcnestbuilder.plugin;
  *
  * @author covertcj
  */
+import com.bukkit.mcnestbuilder.Settings;
 import com.bukkit.mcnestbuilder.TermiteDestructor;
 import java.io.File;
 import java.util.HashMap;
@@ -55,6 +56,7 @@ public class NestBuilder extends JavaPlugin {
 
         PluginManager pm = getServer().getPluginManager();
         BukkitScheduler sched = getServer().getScheduler();
+        Settings.Initialize();
 
         // register events
         pm.registerEvent(Event.Type.PLAYER_COMMAND, playerListener, Priority.Normal, this);
