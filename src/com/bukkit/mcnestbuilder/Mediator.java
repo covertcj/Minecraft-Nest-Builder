@@ -98,8 +98,20 @@ public class Mediator implements Runnable {
             }
 
             // update world pheromones
-            worldData.diffusePheromones();
-            worldData.evaporatePheromones();
+            this.worldData.diffusePheromones(currentStep);
+            this.worldData.evaporatePheromones(currentStep);
+
+            // remove termites when they are done
+            if (currentStep == Settings.TIMESTEPS_BUILDER_START) {
+                ArrayList<Termite> termites2 = new ArrayList<Termite>();
+
+                for (Termite termite : this.termites) {
+                    if (termite instanceof BuilderTermite)
+                        termites2.add(termite);
+                }
+
+                this.termites = termites2;
+            }
 
             // calculate wait time to limit the timestep
             endTime = System.currentTimeMillis();

@@ -105,7 +105,11 @@ public class WorldData {
     /**
      * Diffuses the pheromones for each block onto adjacent blocks.
      */
-    public void diffusePheromones() {
+    public void diffusePheromones(int timestep) {
+        if (timestep > Settings.TIMESTEPS_BUILDER_START) {
+            return;
+        }
+
         HashMap<Location, PheromoneLevel> newPheromoneLevels = new HashMap<Location, PheromoneLevel>();
 
         for (Entry<Location,PheromoneLevel> entries : pheromoneLevels.entrySet()) {
@@ -119,6 +123,7 @@ public class WorldData {
     }
 
     private void diffusePheromone(Location loc, PheromoneLevel pl, HashMap<Location, PheromoneLevel> newPheromoneLevels) {
+        
         // enter this location into the map
         PheromoneLevel newLevel = new PheromoneLevel(pl);
         newPheromoneLevels.put(loc, newLevel);
@@ -147,7 +152,11 @@ public class WorldData {
     /**
      * Partially evaporates all pheromones in the world.
      */
-    public void evaporatePheromones() {
+    public void evaporatePheromones(int timestep) {
+        if (timestep > Settings.TIMESTEPS_BUILDER_START) {
+            return;
+        }
+        
         for (PheromoneLevel pl : pheromoneLevels.values()) {
             pl.cementPheromone = pl.cementPheromone * Settings.PHEROMONE_EVAPORATION_RATE;
             pl.queenPheromone  = pl.queenPheromone  * Settings.PHEROMONE_EVAPORATION_RATE;

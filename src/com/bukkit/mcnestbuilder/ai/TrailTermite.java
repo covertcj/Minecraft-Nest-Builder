@@ -121,7 +121,7 @@ public class TrailTermite implements Termite {
                 weights[index] = 0;
             }
             else {
-                weights[index] = Settings.TRAIL_WANDER_WEIGHT +/* pl.trailPheromone + */locdist;
+                weights[index] = Settings.TRAIL_WANDER_WEIGHT + pl.trailPheromone + locdist;
             }
 
             total += weights[index];

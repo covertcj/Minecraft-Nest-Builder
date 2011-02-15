@@ -1,0 +1,26 @@
+termites:
+    builder:
+        count: 100
+        movement_spaces: 5
+        wander_weight: 1
+        place_probability: 0.5
+        min_place_pheromone: 0.1
+        max_place_pheromone: 0.5
+        pheromone_lay_rate: 1
+        default_block: GOLD_BLOCK
+    queen:
+        pheromone_lay_rate: 1000
+    trail:
+        wander_weight: 1
+        pheromone_lay_rate: 20
+pheromone:
+    diffuse_rate: 0.145
+    evaporation_rate: 0.9
+    diffuse_rate_trail: 0.166
+    evaporation_rate_trail: 0.95
+boundary:
+    y_up_max: 20
+    y_down_max: 20
+timesteps:
+    builder_start: 500
+    finish: 1750

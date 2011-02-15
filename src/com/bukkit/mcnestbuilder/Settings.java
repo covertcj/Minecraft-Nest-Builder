@@ -28,7 +28,7 @@ public class Settings {
 
     public static double QUEEN_LAY_RATE = 1000;
 
-    public static double TRAIL_LAY_RATE = 300;
+    public static double TRAIL_LAY_RATE = 100;
     public static double TRAIL_WANDER_WEIGHT = 1.5;
 
     public static double PHEROMONE_DIFFUSE_RATE = 0.145;

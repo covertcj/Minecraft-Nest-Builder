@@ -58,8 +58,10 @@ public class BuilderTermite implements Termite {
     private void placeBlock() {
         PheromoneLevel pl = this.world.getBlockPheromones(this.x, this.y, this.z);
 
-        if ((pl.queenPheromone > Settings.BUILDER_MIN_PLACE_PHEROMONE && pl.queenPheromone < Settings.BUILDER_MAX_PLACE_PHEROMONE) ^
-            (pl.trailPheromone > Settings.BUILDER_MIN_PLACE_PHEROMONE && pl.trailPheromone < Settings.BUILDER_MAX_PLACE_PHEROMONE)) {
+//        if ((pl.queenPheromone > Settings.BUILDER_MIN_PLACE_PHEROMONE && pl.queenPheromone < Settings.BUILDER_MAX_PLACE_PHEROMONE) ||
+//            (pl.trailPheromone > Settings.BUILDER_MIN_PLACE_PHEROMONE && pl.trailPheromone < Settings.BUILDER_MAX_PLACE_PHEROMONE)) {
+        double pheromone = pl.queenPheromone + pl.trailPheromone;
+        if (pheromone > Settings.BUILDER_MIN_PLACE_PHEROMONE && pheromone < Settings.BUILDER_MAX_PLACE_PHEROMONE) {
 
             if (Math.random() < Settings.BUILDER_PLACE_PROBABILITY) {
                 try {

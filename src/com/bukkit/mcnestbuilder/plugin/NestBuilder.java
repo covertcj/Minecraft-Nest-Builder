@@ -18,19 +18,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
-/**
- * Sample plugin for Bukkit
- *
- * @author Dinnerbone
- */
 public class NestBuilder extends JavaPlugin {
 
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
