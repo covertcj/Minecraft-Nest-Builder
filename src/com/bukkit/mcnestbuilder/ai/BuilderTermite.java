@@ -103,13 +103,16 @@ public class BuilderTermite implements Termite {
     private boolean isMaterialSolid(Material m) {
         if (m == Material.AIR ||
             m == Material.WATER ||
+            m == Material.STATIONARY_WATER ||
             m == Material.LAVA ||
+            m == Material.STATIONARY_LAVA ||
             m == Material.LEAVES ||
             m == Material.SUGAR_CANE_BLOCK ||
             m == Material.SAND ||
             m == Material.SIGN ||
             m == Material.GRAVEL ||
             m == Material.TORCH) {
+
             return false;
         }
 
