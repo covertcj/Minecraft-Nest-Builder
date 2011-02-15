@@ -45,6 +45,7 @@ public class Settings {
 
     public static void Initialize() {
         configuration = new Configuration(new File("plugins/MCNestBuilder/config.yml"));
+        configuration.load();
 
         BUILDER_COUNT = configuration.getInt("termites.builder.count", BUILDER_COUNT);
         BUILDER_MOVE_SPACES = configuration.getInt("termites.builder.movement_spaces", BUILDER_MOVE_SPACES);

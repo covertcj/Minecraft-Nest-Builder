@@ -1,4 +1,13 @@
 name: NestBuilder
 
 main: com.bukkit.mcnestbuilder.plugin.NestBuilder
-version: 1.0
+version: 0.1
+
+description: >
+             Utilizes the concepts of Swarm Intelligence and a Termite Nest
+             Building simulator to create in game structures.
+
+commands:
+    nest:
+        description: Performs a nest building simulation with given parameters.
+        usage: /<command> [area dimension] [minimum time step]

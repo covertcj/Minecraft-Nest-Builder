@@ -9,12 +9,15 @@ package com.bukkit.mcnestbuilder.plugin;
  *
  * @author covertcj
  */
+import com.bukkit.mcnestbuilder.Mediator;
 import com.bukkit.mcnestbuilder.Settings;
 import com.bukkit.mcnestbuilder.TermiteDestructor;
 import java.io.File;
 import java.util.HashMap;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -29,12 +32,8 @@ import org.bukkit.scheduler.BukkitScheduler;
  * @author Dinnerbone
  */
 public class NestBuilder extends JavaPlugin {
-    private final NBPlayerListener playerListener = new NBPlayerListener(this);
-//    private final BlockListener blockListener = new BlockListener(this);
-    private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
 
-    public static final int     DEFAULT_DIMENSION   = 128;
-    public static final int     DEFAULT_DURATION    = 10;
+    private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
 
     public NestBuilder(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
         super(pluginLoader, instance, desc, folder, plugin, cLoader);
@@ -58,15 +57,37 @@ public class NestBuilder extends JavaPlugin {
         BukkitScheduler sched = getServer().getScheduler();
         Settings.Initialize();
 
-        // register events
-        pm.registerEvent(Event.Type.PLAYER_COMMAND, playerListener, Priority.Normal, this);
-
         // schedule events
         sched.scheduleSyncRepeatingTask(this, new TermiteDestructor(), 50, 50);
 
-        // EXAMPLE: Custom code, here we just output some info so we can check all is well
+        // print load verification message
         PluginDescriptionFile pdfFile = this.getDescription();
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
+        String cmdName = command.getName();
+        Player player = (Player) sender;
+
+        if (cmdName.equalsIgnoreCase("nest")) {
+            if (args.length == 2) {
+                // setup the AI
+                int size = Integer.valueOf(args[0]);
+                int timestep = Integer.valueOf(args[1]);
+
+                    Mediator mediator = new Mediator(player, size, timestep);
+                    if (!mediator.InitializeTermtites()) {
+                        player.sendMessage("Error: There are too many NPC's, wait for some to despawn.");
+                    }
+
+                    // run the AI
+                    Thread thread = new Thread(mediator, player.getName() + "NestBuilderThread");
+                    thread.start();
+            }
+        }
+
+        return false;
     }
 
     public boolean isDebugging(final Player player) {
