@@ -25,6 +25,7 @@ public class Settings {
     public static double BUILDER_LAY_RATE = 1;
     private static String BUILDER_DEFAULT_BLOCK_STR = "GOLD_BLOCK";
     public static Material BUILDER_DEFAULT_BLOCK = Material.GOLD_BLOCK;
+    public static boolean BUILDER_DEATH_ON_BUILD = true;
 
     public static double QUEEN_LAY_RATE = 1000;
 
@@ -54,6 +55,7 @@ public class Settings {
         BUILDER_MAX_PLACE_PHEROMONE = configuration.getDouble("termites.builder.max_place_pheromone", BUILDER_MAX_PLACE_PHEROMONE);
         BUILDER_LAY_RATE = configuration.getDouble("termites.builder.pheromone_lay_rate", BUILDER_LAY_RATE);
         BUILDER_DEFAULT_BLOCK = Material.matchMaterial(configuration.getString("termites.builder.default_block", BUILDER_DEFAULT_BLOCK_STR));
+        BUILDER_DEATH_ON_BUILD = configuration.getBoolean("termites.builder.death_on_build", BUILDER_DEATH_ON_BUILD);
 
         QUEEN_LAY_RATE = configuration.getDouble("termites.queen.pheromone_lay_rate", QUEEN_LAY_RATE);
 

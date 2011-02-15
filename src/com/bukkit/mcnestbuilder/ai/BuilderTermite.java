@@ -73,9 +73,11 @@ public class BuilderTermite implements Termite {
 
                 this.world.getBlockPheromones(x, y, z).cementPheromone += Settings.BUILDER_LAY_RATE;
 
-                this.x = this.xO;
-                this.y = this.yO;
-                this.z = this.zO;
+                if (Settings.BUILDER_DEATH_ON_BUILD) {
+                    this.x = this.xO;
+                    this.y = this.yO;
+                    this.z = this.zO;
+                }
 
                 if (npc != null) {
                     npc.moveTo(this.x, this.x, this.x, 0, 0);
