@@ -11,3 +11,6 @@ commands:
     nest:
         description: Performs a nest building simulation with given parameters.
         usage: /<command> [area dimension] [minimum time step]
+    nestundo:
+        description: Perform an undo on the last nest built.
+        usage: /<command>

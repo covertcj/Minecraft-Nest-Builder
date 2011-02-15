@@ -23,27 +23,31 @@ import org.bukkit.entity.Player;
  * @author covertcj
  */
 public class Mediator implements Runnable {
+    public static Object npcKeyLock = new Object();
 
-    Player caller;
-    World world;
-    WorldData worldData;
+    private Player caller;
+    public static World world;
+    private WorldData worldData;
 
-    ArrayList<QueenTermite> queenTermites;
-    ArrayList<BuilderTermite> builderTermites;
-    ArrayList<TrailTermite> trailTermites;
-    ArrayList<Termite> termites;
+    private ArrayList<QueenTermite> queenTermites;
+    private ArrayList<BuilderTermite> builderTermites;
+    private ArrayList<TrailTermite> trailTermites;
+    private ArrayList<Termite> termites;
 
-    int dimension;
-    int timestep;
-    int duration;
+    private int dimension;
+    private int timestep;
+    private int duration;
     
     public static int npcID;
-    public static int npcCount;
-    public static final int Y_OFFSET_DOWN = 25;
-    public static final int Y_OFFSET_UP   = 35;
 
-    public static boolean running = false;
-    public static final Object runningLock = new Object();
+    public static boolean runningBuilders = false;
+    public static final Object runningBuildersLock = new Object();
+
+    public static boolean runningTrails = false;
+    public static final Object runningTrailsLock = new Object();
+
+    public static ArrayList<BlockMemory> changedBlocks = new ArrayList<BlockMemory>();
+    public static final Object changedBlocksLock = new Object();
 
     public Mediator(Player player, int dimension, int timestep) {
 
@@ -56,7 +60,7 @@ public class Mediator implements Runnable {
         int y = this.caller.getLocation().getBlockY();
         int z = this.caller.getLocation().getBlockZ();
 
-        this.world = this.caller.getWorld();
+        world = this.caller.getWorld();
         this.worldData = new WorldData(this.world, this.dimension, new Location(x, y, z));
 
         this.caller.sendMessage("Initializing Nest Builder at (" + x + ", " + y + ", " + z + ") with a dimension of " + dimension + " over " + duration + " seconds...");
@@ -72,8 +76,8 @@ public class Mediator implements Runnable {
      */
     public void run() {
 
-        synchronized(runningLock) {
-            running = true;
+        synchronized(runningTrailsLock) {
+            runningTrails = true;
         }
 
         boolean done = false;
@@ -111,6 +115,20 @@ public class Mediator implements Runnable {
                 }
 
                 this.termites = termites2;
+
+                synchronized(TermiteManager.buildersToSpawnLock) {
+                    for (Termite builder : termites) {
+                        TermiteManager.buildersToSpawn.add((BuilderTermite)builder);
+                    }
+                }
+
+                synchronized(runningTrailsLock) {
+                    runningTrails = false;
+                }
+
+                synchronized(runningBuildersLock) {
+                    runningBuilders = true;
+                }
             }
 
             // calculate wait time to limit the timestep
@@ -137,8 +155,8 @@ public class Mediator implements Runnable {
         // cleanup
         this.caller.sendMessage("Nest Building process has completed.");
 
-        synchronized(runningLock) {
-            running = false;
+        synchronized(runningBuildersLock) {
+            runningBuilders = false;
         }
     }
 
@@ -157,8 +175,8 @@ public class Mediator implements Runnable {
         // find the main queen location
         //queenLocs.add(new Location(queenX, queenY, queenZ));
 
-        int yMin = playerY - Y_OFFSET_DOWN;
-        int yMax = playerY + Y_OFFSET_UP;
+        int yMin = playerY - Settings.BOUNDARY_DOWN_MAX;
+        int yMax = playerY + Settings.BOUNDARY_UP_MAX;
 
         // find the locations of other termites
         for (int x = xOrigin; x < dimension + xOrigin; x++) {
@@ -238,14 +256,21 @@ public class Mediator implements Runnable {
         return true;
     }
 
-    public static String getNextNPCID() {
-        npcID++;
-        npcCount++;
+    public static void undo() {
+        synchronized (changedBlocksLock) {
+            for (BlockMemory changedBlock : changedBlocks) {
+                world.getBlockAt(changedBlock.location.x, changedBlock.location.y, changedBlock.location.z).setType(changedBlock.material);
+            }
 
-        return "" + npcID;
+            changedBlocks.clear();
+        }
     }
 
-    public static void releaseNPC() {
-        npcCount--;
+    public static String getNextNPCID() {
+        synchronized(npcKeyLock) {
+            npcID++;
+
+            return "" + npcID;
+        }
     }
 }

@@ -13,6 +13,4 @@ public interface Termite {
         public void act(int timeStep);
         
 	public void layPheromone(int timeStep);
-
-        public void destroy();
 }

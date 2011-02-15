@@ -5,10 +5,11 @@
 
 package com.bukkit.mcnestbuilder.ai;
 
+import com.bukkit.mcnestbuilder.BlockMemory;
 import com.bukkit.mcnestbuilder.Location;
 import com.bukkit.mcnestbuilder.Mediator;
 import com.bukkit.mcnestbuilder.Settings;
-import com.bukkit.mcnestbuilder.TermiteDestructor;
+import com.bukkit.mcnestbuilder.TermiteManager;
 import com.bukkit.mcnestbuilder.WorldData;
 import java.util.ArrayList;
 import org.bukkit.Material;
@@ -30,6 +31,8 @@ public class BuilderTermite implements Termite {
 
     final Material block_material = Material.GOLD_BLOCK;
 
+    private final Object npcSpawnLock = new Object();
+
     public BuilderTermite(int x, int y, int z, WorldData world) {
         this.xO = x;
         this.yO = y;
@@ -38,13 +41,6 @@ public class BuilderTermite implements Termite {
         this.y = y;
         this.z = z;
         this.world = world;
-
-        String key = Mediator.getNextNPCID();
-        npc = NpcSpawner.SpawnBasicHumanNpc(key, "BuilderTermite", world.getWorld(), x, y, z, 0, 0);
-
-        synchronized(TermiteDestructor.npcLock) {
-            TermiteDestructor.npcs.put(key, npc);
-        }
     }
 
     public void act(int timeStep) {
@@ -65,6 +61,7 @@ public class BuilderTermite implements Termite {
 
             if (Math.random() < Settings.BUILDER_PLACE_PROBABILITY) {
                 try {
+                    Mediator.changedBlocks.add(new BlockMemory(new Location(x, y, z), this.world.getBlockType(x, y, z)));
                     this.world.setBlockType(x, y, z, getMaterial());
                 } catch (NullPointerException ex) {
                     System.out.println("=====================\nWTF, STUPID ERROR?!?!?!\n=====================");
@@ -223,10 +220,15 @@ public class BuilderTermite implements Termite {
         // do nothing
     }
 
-    public void destroy() {
-        if (npc != null) {
-            NpcSpawner.RemoveBasicHumanNpc(npc);
-            Mediator.releaseNPC();
+    public void spawnNpc() {
+        String key = Mediator.getNextNPCID();
+        
+        synchronized(npcSpawnLock) {
+            npc = NpcSpawner.SpawnBasicHumanNpc(key, "BuilderTermite", world.getWorld(), x, y, z, 0, 0);
+        }
+
+        synchronized(TermiteManager.builderNpcLock) {
+            TermiteManager.builderNpcs.put(key, npc);
         }
     }
 

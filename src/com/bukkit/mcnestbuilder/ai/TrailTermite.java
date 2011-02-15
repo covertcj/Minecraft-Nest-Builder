@@ -9,7 +9,7 @@ import com.bukkit.mcnestbuilder.Location;
 import com.bukkit.mcnestbuilder.Mediator;
 import com.bukkit.mcnestbuilder.IDLocation;
 import com.bukkit.mcnestbuilder.Settings;
-import com.bukkit.mcnestbuilder.TermiteDestructor;
+import com.bukkit.mcnestbuilder.TermiteManager;
 import com.bukkit.mcnestbuilder.WorldData;
 import java.util.ArrayList;
 import org.bukkit.Material;
@@ -50,8 +50,8 @@ public class TrailTermite implements Termite {
         String key = Mediator.getNextNPCID();
         npc = NpcSpawner.SpawnBasicHumanNpc(key, "TrailTermite", world.getWorld(), x, y, z, 0, 0);
 
-        synchronized(TermiteDestructor.npcLock) {
-            TermiteDestructor.npcs.put(key, npc);
+        synchronized(TermiteManager.trailNpcLock) {
+            TermiteManager.trailNpcs.put(key, npc);
         }
     }
 
@@ -121,7 +121,7 @@ public class TrailTermite implements Termite {
                 weights[index] = 0;
             }
             else {
-                weights[index] = Settings.TRAIL_WANDER_WEIGHT + pl.trailPheromone + locdist;
+                weights[index] = Settings.TRAIL_WANDER_WEIGHT + /*pl.trailPheromone + */locdist;
             }
 
             total += weights[index];
@@ -191,12 +191,4 @@ public class TrailTermite implements Termite {
             }
         }
     }
-
-    public void destroy() {
-        if (npc != null) {
-            NpcSpawner.RemoveBasicHumanNpc(npc);
-            Mediator.releaseNPC();
-        }
-    }
-
 }

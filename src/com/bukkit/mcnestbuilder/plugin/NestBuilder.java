@@ -11,7 +11,7 @@ package com.bukkit.mcnestbuilder.plugin;
  */
 import com.bukkit.mcnestbuilder.Mediator;
 import com.bukkit.mcnestbuilder.Settings;
-import com.bukkit.mcnestbuilder.TermiteDestructor;
+import com.bukkit.mcnestbuilder.TermiteManager;
 import java.io.File;
 import java.util.HashMap;
 import org.bukkit.entity.Player;
@@ -51,7 +51,7 @@ public class NestBuilder extends JavaPlugin {
         Settings.Initialize();
 
         // schedule events
-        sched.scheduleSyncRepeatingTask(this, new TermiteDestructor(), 50, 50);
+        sched.scheduleSyncRepeatingTask(this, new TermiteManager(), 50, 50);
 
         // print load verification message
         PluginDescriptionFile pdfFile = this.getDescription();
@@ -78,6 +78,9 @@ public class NestBuilder extends JavaPlugin {
                     Thread thread = new Thread(mediator, player.getName() + "NestBuilderThread");
                     thread.start();
             }
+        }
+        else if (cmdName.equalsIgnoreCase("nestundo")) {
+            Mediator.undo();
         }
 
         return false;

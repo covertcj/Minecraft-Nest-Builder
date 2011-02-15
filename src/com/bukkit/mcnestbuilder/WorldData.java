@@ -31,8 +31,8 @@ public class WorldData {
         int xoff = playerLoc.x - dimension / 2;
         int zoff = playerLoc.z - dimension / 2;
 
-        int yMin = playerLoc.y - Mediator.Y_OFFSET_DOWN;
-        int yMax = playerLoc.y + Mediator.Y_OFFSET_UP;
+        int yMin = playerLoc.y - Settings.BOUNDARY_DOWN_MAX;
+        int yMax = playerLoc.y + Settings.BOUNDARY_UP_MAX;
 
         for (int x = xoff; x < dimension + xoff; x++) {
             for (int y = yMin; y < yMax; y++) {
@@ -67,7 +67,10 @@ public class WorldData {
      * @param mat The material to set the block to
      */
     public void setBlockType(int x, int y, int z, Material mat) {
-        world.getBlockAt(x, y, z).setType(mat);
+        //world.getBlockAt(x, y, z).setType(mat);
+        synchronized(TermiteManager.blocksToSpawnLock) {
+            TermiteManager.blocksToSpawn.add(new BlockMemory(new Location(x, y, z), mat));
+        }
     }
 
     /**
