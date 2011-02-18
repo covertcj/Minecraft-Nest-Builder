@@ -51,7 +51,7 @@ public class NestBuilder extends JavaPlugin {
         Settings.Initialize();
 
         // schedule events
-        sched.scheduleSyncRepeatingTask(this, new TermiteManager(), 50, 50);
+        sched.scheduleSyncRepeatingTask(this, new TermiteManager(), 10, 10);
 
         // print load verification message
         PluginDescriptionFile pdfFile = this.getDescription();
