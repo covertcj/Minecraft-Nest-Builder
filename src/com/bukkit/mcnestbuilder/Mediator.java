@@ -9,6 +9,7 @@ import com.bukkit.mcnestbuilder.ai.BuilderTermite;
 import com.bukkit.mcnestbuilder.ai.QueenTermite;
 import com.bukkit.mcnestbuilder.ai.Termite;
 import com.bukkit.mcnestbuilder.ai.TrailTermite;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -193,7 +194,14 @@ public class Mediator implements Runnable {
                         if (sign.getLine(0).equalsIgnoreCase("queen")) {
 
                             // add a builder location
-                            queenLocs.add(new IDLocation(x, y, z, Integer.valueOf(((CraftSign)current.getState()).getLine(1))));
+                            int queenID;
+                            try {
+                                queenID = Integer.valueOf(((CraftSign)current.getState()).getLine(1));
+                            }
+                            catch (NumberFormatException ex) {
+                                queenID = -1;
+                            }
+                            queenLocs.add(new IDLocation(x, y, z, queenID));
 
                             current.setTypeId(0);
                         }
@@ -211,7 +219,14 @@ public class Mediator implements Runnable {
                         if (sign.getLine(0).equalsIgnoreCase("trail")) {
 
                             // add a builder location
-                            trailLocs.add(new IDLocation(x, y, z, Integer.valueOf(((CraftSign)current.getState()).getLine(1))));
+                            int trailID;
+                            try {
+                                trailID = Integer.valueOf(((CraftSign)current.getState()).getLine(1));
+                                trailLocs.add(new IDLocation(x, y, z, trailID));
+                            }
+                            catch (NumberFormatException ex) {
+                                // do nothing
+                            }
 
                             current.setTypeId(0);
                         }
